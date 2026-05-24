@@ -1,0 +1,20 @@
+---
+import Logo from './Logo.astro';
+import { FOOTER } from '../data/content';
+---
+<footer class="bg-c8-black border-t border-c8-white/10 px-6 py-5 flex items-center justify-between">
+  <Logo style="width: 32px; height: auto;" />
+
+  <p class="font-body text-c8-white/50 text-[13px]">
+    © {FOOTER.year} {FOOTER.brand}
+  </p>
+
+  <a
+    href={FOOTER.href}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="font-body font-medium text-c8-white/70 text-[14px] hover:text-c8-orange transition-colors duration-200"
+  >
+    {FOOTER.handle} →
+  </a>
+</footer>

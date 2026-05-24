@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://chrono8media.com/sitemap-index.xml

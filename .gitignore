@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.astro/
+
+# Environment variables — NEVER commit these
+.env
+.env.local
+.env.production
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.suo
+*.user
+
+# Cloudflare
+.wrangler/
+
+# Claude Code local agent state (per-machine, not project source)
+.claude/settings.local.json
+.claude/worktrees/
+
+# Obsidian per-user workspace state (panel layout, last-open file)
+chrono8media/project/chrono8media/.obsidian/workspace.json

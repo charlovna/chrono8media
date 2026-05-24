@@ -1,0 +1,66 @@
+---
+import { CASE_STUDIES } from '../data/content';
+---
+<section
+  id="case-studies"
+  data-section="work"
+  class="bg-c8-black py-24 px-4"
+>
+  <p class="font-body font-medium text-c8-white/60 text-[12px] tracking-[0.12em] uppercase text-center mb-16">
+    SELECTED WORK
+  </p>
+
+  <div class="max-w-5xl mx-auto space-y-[8vh]">
+    {CASE_STUDIES.map((study) => (
+      <article class="case-study-card relative min-h-[80vh] flex flex-col justify-end overflow-hidden rounded-2xl">
+
+        <!-- Parallax background image -->
+        <div class="case-study-image absolute inset-0" aria-hidden="true">
+          <img
+            src={study.image}
+            alt={study.imageAlt}
+            class="w-full object-cover object-center"
+            style="height: 120%; transform: translateY(0);"
+            loading="lazy"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-c8-black via-c8-black/60 to-transparent" />
+        </div>
+
+        <!-- Card content -->
+        <div class="relative z-10 p-10 md:p-16">
+          <p class="font-body font-medium text-c8-white/60 text-[12px] tracking-[0.12em] uppercase mb-4">
+            {study.industry} · {study.timeframe}
+          </p>
+
+          <div class="flex flex-col md:flex-row md:items-end md:gap-8 mb-6">
+            <span
+              class="case-metric font-display font-bold text-c8-orange leading-none"
+              style="font-size: clamp(5rem, 18vw, 14rem);"
+              data-prefix={study.metricPrefix}
+              data-target={study.metric}
+              data-suffix={study.metricSuffix}
+              aria-label={`${study.metricPrefix}${study.metric}${study.metricSuffix} ${study.metricLabel}`}
+            >
+              {study.metricPrefix}{study.metric}{study.metricSuffix}
+            </span>
+            <span class="font-body font-medium text-c8-white text-[24px] md:mb-4">
+              {study.metricLabel}
+            </span>
+          </div>
+
+          <p class="font-body text-c8-white/70 text-[18px] max-w-[500px] leading-relaxed mb-6">
+            {study.outcome}
+          </p>
+
+          <ul class="flex flex-wrap gap-4">
+            {study.bullets.map((bullet) => (
+              <li class="font-body text-[14px] text-c8-white/50 tracking-[0.08em] uppercase">
+                · {bullet}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>

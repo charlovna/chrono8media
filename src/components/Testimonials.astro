@@ -1,0 +1,42 @@
+---
+import { TESTIMONIALS } from '../data/content';
+---
+<section
+  id="testimonials"
+  data-section="testimonials"
+  class="bg-c8-orange py-24 px-4"
+>
+  <p class="font-body font-medium text-c8-white/80 text-[12px] tracking-[0.12em] uppercase text-center mb-4">
+    WHAT CLIENTS SAY
+  </p>
+
+  <h2 class="h-display text-c8-white text-center mb-16" style="font-size: var(--text-h2)">
+    <span class="line">WHAT OUR</span>
+    <span class="line">CLIENTS SAY</span>
+  </h2>
+
+  <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+    {TESTIMONIALS.map((t) => (
+      <article
+        class="testimonial-card rounded-2xl p-8 shadow-2xl"
+        style="background: #CFC2B4; perspective: 1000px;"
+      >
+        <img
+          src={t.headshot}
+          alt={`${t.name}`}
+          width="80"
+          height="80"
+          class="rounded-full mb-6 object-cover"
+          loading="lazy"
+        />
+        <blockquote class="font-body text-c8-black text-[22px] leading-[1.5] mb-6">
+          "{t.quote}"
+        </blockquote>
+        <footer>
+          <p class="font-display font-bold text-c8-black text-[18px]">{t.name}</p>
+          <p class="font-body text-c8-black/60 text-[14px] mt-1">{t.title}</p>
+        </footer>
+      </article>
+    ))}
+  </div>
+</section>

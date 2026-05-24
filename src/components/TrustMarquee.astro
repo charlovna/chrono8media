@@ -1,0 +1,39 @@
+---
+import Logo from './Logo.astro';
+import { TRUST_MARQUEE } from '../data/content';
+
+const { brands } = TRUST_MARQUEE;
+---
+<section
+  id="trust-marquee"
+  data-section="trust"
+  aria-label="Clients we've worked with"
+  class="bg-c8-black overflow-hidden"
+  style="height: 140px;"
+>
+  <!-- List duplicated 2× so the CSS loop is seamless -->
+  <div class="marquee-track flex items-center h-full gap-12" aria-hidden="true">
+    {[...brands, ...brands].map((brand) => (
+      <div class="flex items-center gap-12 shrink-0">
+        <span class="font-display font-bold text-c8-white whitespace-nowrap" style="font-size: 48px;">
+          {brand}
+        </span>
+        <Logo style="width: 24px; height: auto;" />
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .marquee-track {
+    width: max-content;
+    animation: marquee 60s linear infinite;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track { animation: none; }
+  }
+</style>

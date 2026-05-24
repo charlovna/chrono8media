@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+@theme {
+  --color-c8-orange:      #FF5A1F;
+  --color-c8-orange-deep: #E04A14;
+  --color-c8-black:       #0A0A0A;
+  --color-c8-white:       #FFFFFF;
+  --color-c8-grain:       #1A1A1A;
+  --color-c8-bone:        #CFC2B4;
+
+  --font-display: 'PP Neue Machina', 'Space Grotesk', system-ui, sans-serif;
+  --font-body:    'PP Neue Montreal', 'Geist', system-ui, sans-serif;
+
+  --text-h1:      clamp(4rem, 12vw, 10rem);
+  --text-h2:      clamp(3rem, 8vw, 6rem);
+  --text-h3:      clamp(1.5rem, 3vw, 2.5rem);
+  --text-body:    clamp(1rem, 1.2vw, 1.125rem);
+  --text-eyebrow: 0.75rem;
+}
+
+/* Dev fallback — swap to licensed WOFF2 from pangrampangram.com before launch */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap');
+
+/* PP Neue Machina (license required) */
+@font-face {
+  font-family: 'PP Neue Machina';
+  src: url('/fonts/PPNeueMachina-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PP Neue Machina';
+  src: url('/fonts/PPNeueMachina-Ultrabold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PP Neue Machina';
+  src: url('/fonts/PPNeueMachina-UltraboldItalic.woff2') format('woff2');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* PP Neue Montreal (license required) */
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Base */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: auto; /* Lenis handles smooth scroll */
+}
+
+body {
+  margin: 0;
+  background: var(--color-c8-black);
+  color: var(--color-c8-white);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+/* Display headline base */
+.h-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.h-display > .line {
+  display: block;
+  white-space: nowrap;
+}
+
+.h-display em {
+  font-style: italic;
+  font-weight: 800;
+}
+
+/* Scroll progress bar */
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--color-c8-orange);
+  transform-origin: left;
+  transform: scaleX(0);
+  z-index: 1000;
+}
+
+/* Custom cursor (pointer devices only) */
+#cursor {
+  width: 8px;
+  height: 8px;
+  background: var(--color-c8-white);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  mix-blend-mode: difference;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+}
+
+@media (pointer: coarse) {
+  #cursor { display: none; }
+}
+
+/* Focus */
+:focus-visible {
+  outline: 2px solid var(--color-c8-orange);
+  outline-offset: 2px;
+}
+
+/* Noise overlay */
+.noise-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/noise.png');
+  opacity: 0.04;
+  pointer-events: none;
+}

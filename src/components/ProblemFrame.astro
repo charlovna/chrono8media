@@ -1,0 +1,22 @@
+---
+import { PROBLEM_FRAME } from '../data/content';
+---
+<section
+  id="problem-frame"
+  data-section="problem"
+  class="bg-c8-black min-h-screen flex items-center justify-center px-4"
+>
+  <div class="text-center max-w-4xl">
+    <h2
+      class="h-display problem-headline text-c8-white mb-8"
+      style="font-size: var(--text-h2)"
+    >
+      <span class="line">{PROBLEM_FRAME.headline.line1}</span>
+      <span class="line">{PROBLEM_FRAME.headline.line2}</span>
+    </h2>
+
+    <p class="problem-body font-body text-c8-white/80 text-[20px] max-w-[480px] mx-auto leading-relaxed">
+      {PROBLEM_FRAME.body}
+    </p>
+  </div>
+</section>

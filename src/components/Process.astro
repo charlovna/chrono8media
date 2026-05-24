@@ -1,0 +1,66 @@
+---
+import { PROCESS } from '../data/content';
+---
+<section
+  id="process"
+  data-section="process"
+  class="bg-c8-black min-h-screen py-24"
+>
+  <div class="px-6 md:px-16 mb-12">
+    <p class="font-body font-medium text-c8-white/60 text-[12px] tracking-[0.12em] uppercase mb-2">
+      HOW WE WORK
+    </p>
+    <h2 class="h-display text-c8-white" style="font-size: var(--text-h2)">
+      <span class="line">OUR</span>
+      <span class="line">PROCESS</span>
+    </h2>
+  </div>
+
+  <!-- Desktop: horizontal scroll-snap track -->
+  <div
+    class="process-track hidden md:flex overflow-x-auto"
+    style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none;"
+  >
+    {PROCESS.map((step, i) => (
+      <div
+        class="process-step snap-start shrink-0 w-screen min-h-[70vh] flex flex-col justify-end px-16 pb-24"
+        data-step={i}
+      >
+        <span
+          class="font-display font-bold text-c8-orange leading-none mb-4"
+          style="font-size: 25vw;"
+          aria-hidden="true"
+        >
+          {step.number}
+        </span>
+        <h3 class="h-display text-c8-white mb-6" style="font-size: clamp(2rem, 6vw, 5rem)">
+          {step.title}
+        </h3>
+        <p class="font-body text-c8-white/80 text-[18px] max-w-[480px] leading-relaxed">
+          {step.body}
+        </p>
+      </div>
+    ))}
+  </div>
+
+  <!-- Mobile: vertical stack -->
+  <div class="md:hidden">
+    {PROCESS.map((step, i) => (
+      <div class="px-6 py-16 min-h-[70vh] flex flex-col justify-end" data-step={i}>
+        <span
+          class="font-display font-bold text-c8-orange leading-none mb-4"
+          style="font-size: clamp(6rem, 25vw, 12rem);"
+          aria-hidden="true"
+        >
+          {step.number}
+        </span>
+        <h3 class="h-display text-c8-white mb-6" style="font-size: clamp(2rem, 8vw, 4rem)">
+          {step.title}
+        </h3>
+        <p class="font-body text-c8-white/80 text-[18px] max-w-[480px] leading-relaxed">
+          {step.body}
+        </p>
+      </div>
+    ))}
+  </div>
+</section>

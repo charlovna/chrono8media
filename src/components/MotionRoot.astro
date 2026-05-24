@@ -1,0 +1,15 @@
+---
+// Initializes all motion: Lenis smooth scroll + GSAP ScrollTrigger animations.
+// Must be the first component rendered in index.astro.
+---
+<script>
+  import { initLenis } from '../motion/lenis';
+  import { initHero } from '../motion/hero';
+  import { initScrollAnimations } from '../motion/scroll';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initLenis();
+    initHero();
+    initScrollAnimations();
+  });
+</script>

@@ -1,0 +1,43 @@
+---
+import Logo from './Logo.astro';
+import { HERO } from '../data/content';
+---
+<section
+  id="hero"
+  data-section="hero"
+  class="relative min-h-screen bg-c8-orange flex flex-col items-center justify-center overflow-hidden noise-overlay"
+>
+  <!-- Ghost logo (centered behind headline) -->
+  <div class="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+    <Logo class="hero-logo-ghost" opacity={0.08} style="width: 80vw; height: auto;" />
+  </div>
+
+  <!-- Foreground logo (top-left) -->
+  <div class="absolute top-6 left-6 z-10">
+    <Logo class="hero-logo" style="width: 60px; height: auto;" />
+  </div>
+
+  <!-- Content -->
+  <div class="relative z-10 text-center px-4 max-w-[90vw]">
+    <p class="hero-eyebrow font-body font-medium text-c8-white tracking-[0.12em] text-[12px] mb-6 uppercase">
+      {HERO.eyebrow}
+    </p>
+
+    <h1 class="h-display hero-headline" style="font-size: var(--text-h1)">
+      <span class="line">{HERO.headline.line1}</span>
+      <span class="line">{HERO.headline.line2} <em>{HERO.headline.italicWord}</em>.</span>
+    </h1>
+
+    <div class="mt-10">
+      <a
+        href={HERO.cta.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hero-cta inline-flex items-center gap-3 bg-c8-black text-c8-white font-body font-bold rounded-full px-8 py-[18px] text-[16px] tracking-[0.02em] transition-all duration-200 hover:-translate-y-0.5 hover:bg-c8-orange-deep focus-visible:ring-2 focus-visible:ring-c8-white"
+        aria-label={`${HERO.cta.label} — DM @chrono8media on Instagram`}
+      >
+        {HERO.cta.label} →
+      </a>
+    </div>
+  </div>
+</section>

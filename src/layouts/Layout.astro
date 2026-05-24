@@ -1,0 +1,48 @@
+---
+import '../styles/global.css';
+import { META } from '../data/content';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = META.title, description = META.description } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#FF5A1F" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={`${META.url}${META.ogImage}`} />
+    <meta property="og:url" content={META.url} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${META.url}${META.ogImage}`} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <link rel="preload" as="font" type="font/woff2"
+      href="/fonts/PPNeueMachina-Ultrabold.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2"
+      href="/fonts/PPNeueMontreal-Regular.woff2" crossorigin />
+
+    <!-- Cloudflare Web Analytics — replace token before launch -->
+    <!-- <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token":"YOUR_TOKEN_HERE"}'></script> -->
+  </head>
+  <body class="bg-c8-black text-c8-white overflow-x-hidden">
+    <div id="scroll-progress" aria-hidden="true"></div>
+    <div id="cursor" aria-hidden="true"></div>
+    <slot />
+  </body>
+</html>

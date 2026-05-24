@@ -1,0 +1,14 @@
+---
+interface Props {
+  class?: string;
+  opacity?: number;
+  style?: string;
+}
+const { class: className = '', opacity = 1, style = '' } = Astro.props;
+---
+<img
+  src="/images/chrono8-logo.png"
+  alt="Chrono8 Media"
+  class:list={['logo-mark object-contain', className]}
+  style={`opacity: ${opacity}; ${style}`}
+/>

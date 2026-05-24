@@ -1,0 +1,65 @@
+---
+import Logo from './Logo.astro';
+import { PILLARS } from '../data/content';
+---
+<section
+  id="pillars-stack"
+  data-section="pillars"
+  aria-label="Our four service pillars"
+>
+  {PILLARS.map((pillar, i) => (
+    <div
+      class:list={[
+        'pillar-card relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden',
+        pillar.bg === 'orange' ? 'bg-c8-orange' : 'bg-c8-black',
+      ]}
+      data-pillar={i}
+    >
+      <!-- Large number watermark (top-left) -->
+      <span
+        class:list={[
+          'absolute top-8 left-8 font-display font-bold select-none pointer-events-none leading-none',
+          pillar.bg === 'orange' ? 'text-c8-black/[0.12]' : 'text-c8-white/[0.12]',
+        ]}
+        style="font-size: 30vw;"
+        aria-hidden="true"
+      >
+        {pillar.number}
+      </span>
+
+      <!-- Logo watermark (bottom-right) -->
+      <div class="absolute bottom-8 right-8 pointer-events-none" aria-hidden="true">
+        <Logo
+          style="width: 80px; height: auto;"
+          opacity={pillar.bg === 'orange' ? 0.16 : 0.22}
+          class="pillar-logo-watermark"
+        />
+      </div>
+
+      <!-- Pillar progress bar (left edge, filled by GSAP scrub) -->
+      <div
+        class:list={[
+          'pillar-progress absolute left-0 top-0 w-0.5 h-0',
+          pillar.bg === 'orange' ? 'bg-c8-black/30' : 'bg-c8-white/30',
+        ]}
+        aria-hidden="true"
+      />
+
+      <!-- Main content -->
+      <div class="relative z-10 text-center max-w-2xl">
+        <h2
+          class="h-display pillar-name text-c8-white mb-4"
+          style="font-size: clamp(4rem, 12vw, 10rem)"
+        >
+          {pillar.name}
+        </h2>
+        <p class="font-body italic text-c8-white/80 text-[24px] mb-4">
+          {pillar.tagline}
+        </p>
+        <p class="font-body text-c8-white/80 text-[18px] max-w-[600px] mx-auto leading-relaxed">
+          {pillar.body}
+        </p>
+      </div>
+    </div>
+  ))}
+</section>
