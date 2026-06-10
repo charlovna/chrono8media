@@ -1,127 +1,133 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SplitText } from 'gsap/SplitText';
+import { TextPlugin } from 'gsap/TextPlugin';
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(ScrollTrigger, TextPlugin);
 
 export function initScrollAnimations() {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reducedMotion) return;
+  initPillars(reducedMotion);
+  initHeadingTypewriter(reducedMotion);
+}
 
-  // ── §3 Problem Frame — word-by-word reveal on scroll ──────
-  const problemHeadline = document.querySelector('.problem-headline') as HTMLElement | null;
-  if (problemHeadline) {
-    const split = new SplitText(problemHeadline, { type: 'words' });
-    gsap.from(split.words, {
-      opacity: 0,
-      y: 20,
-      stagger: 0.08,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: problemHeadline, start: 'top 60%' },
-    });
+/**
+ * §4 Pillars — pinned crossfade + 3D logo watermark scrub.
+ * Ported faithfully from prototype Chrono8 Media.html lines 1388-1450.
+ */
+function initPillars(reduced: boolean) {
+  const section = document.getElementById('sectionPillars');
+  if (!section) return;
+
+  const cards = section.querySelectorAll<HTMLElement>('.pillar-card');
+  const count = cards.length;
+  if (!count) return;
+
+  if (reduced) {
+    cards.forEach((c) => { c.style.opacity = '1'; });
+    return;
   }
 
-  // ── §4 Pillars — pinned stack, crossfade between cards ────
-  const pillarsSection = document.getElementById('pillars-stack');
-  const pillarCards = document.querySelectorAll<HTMLElement>('.pillar-card');
-  if (pillarsSection && pillarCards.length) {
-    gsap.set(pillarCards, { opacity: 0 });
-    gsap.set(pillarCards[0], { opacity: 1 });
+  gsap.set(cards, { opacity: 0 });
+  gsap.set(cards[0], { opacity: 1 });
+
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top top',
+    end: `+=${count * 100}%`,
+    pin: '#pillarsPin',
+    scrub: 0.6,
+    onUpdate: (self) => {
+      const p = self.progress * count;
+      const idx = Math.min(count - 1, Math.floor(p));
+      const localT = p - idx;
+
+      cards.forEach((c, i) => {
+        let op = 0;
+        if (i === idx) op = 1 - Math.max(0, localT - 0.7) / 0.3;
+        else if (i === idx + 1) op = Math.max(0, (localT - 0.7) / 0.3);
+        if (i === idx && idx === count - 1) op = 1;
+        c.style.opacity = String(op);
+      });
+
+      cards.forEach((c, i) => {
+        const body = c.querySelector<HTMLElement>('.pillar-body');
+        if (!body) return;
+        const dist = Math.abs(i - p);
+        body.style.transform = `translateY(${dist * 30}px) scale(${1 - dist * 0.04})`;
+      });
+
+      // 3D logo watermark scrub
+      const prog = self.progress;
+      const rotY  = prog * 720;
+      const rotX  = Math.sin(prog * Math.PI * 2) * 12;
+      const rotZ  = Math.sin(prog * Math.PI) * 6;
+      const scale = 1 + Math.sin(prog * Math.PI) * 0.18;
+      const tZ    = -Math.abs(Math.cos(prog * Math.PI)) * 80;
+      const blur  = Math.abs(Math.sin(prog * Math.PI * 2)) * 0.6;
+      const transform = `translateZ(${tZ}px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) scale(${scale})`;
+      cards.forEach((c) => {
+        const w = c.querySelector<HTMLElement>('.pillar-watermark > div');
+        if (!w) return;
+        w.style.transform = transform;
+        w.style.filter = `blur(${blur}px)`;
+      });
+    },
+  });
+}
+
+/**
+ * Every section h2 with .section-heading types in on scroll entry.
+ * Each .line is typewritten sequentially via GSAP TextPlugin.
+ * The italic <em> on any line is stashed from innerHTML and restored on complete.
+ *
+ * Skips: hero (has its own load timeline) + pillar cards (use crossfade).
+ */
+function initHeadingTypewriter(reduced: boolean) {
+  if (reduced) return;
+
+  const headings = document.querySelectorAll<HTMLElement>('.section-heading');
+  headings.forEach((h) => {
+    if (h.closest('#hero') || h.closest('#sectionPillars')) return;
+
+    const lines = h.querySelectorAll<HTMLElement>('.line');
+    if (!lines.length) return;
+
+    // Stash each line's final state (HTML + plain text) then hide
+    const lineData = [...lines].map((line) => ({
+      line,
+      finalHTML: line.innerHTML,
+      finalText: (line.textContent ?? '').trim(),
+    }));
+
+    // Pre-hide lines so they don't flash before the trigger fires
+    lineData.forEach(({ line }) => {
+      line.textContent = '';
+      line.style.opacity = '0';
+    });
 
     ScrollTrigger.create({
-      trigger: pillarsSection,
-      pin: true,
-      scrub: 1,
-      end: '+=400%',
-      onUpdate(self) {
-        const idx = Math.min(Math.floor(self.progress * 4), 3);
-        pillarCards.forEach((card, i) => {
-          gsap.to(card, { opacity: i === idx ? 1 : 0, duration: 0.3, overwrite: 'auto' });
+      trigger: h,
+      start: 'top 82%',
+      once: true,
+      onEnter: () => {
+        // Show lines (blank) before typing starts so layout is stable
+        lineData.forEach(({ line }) => { line.style.opacity = '1'; });
+
+        // Build a sequential typewriter timeline across all lines
+        const tl = gsap.timeline();
+        lineData.forEach(({ line, finalText, finalHTML }, i) => {
+          const duration = Math.max(0.4, finalText.length * 0.04);
+          tl.to(line, {
+            duration,
+            ease: 'none',
+            text: { value: finalText, delimiter: '' },
+            onComplete: () => {
+              // Restore HTML markup (<em> italic emphasis) on complete
+              line.innerHTML = finalHTML;
+            },
+          }, i === 0 ? 0 : '+=0.08');
         });
       },
     });
-  }
-
-  // ── §5 Work — counter-up animation on metrics ─────────────
-  document.querySelectorAll<HTMLElement>('.case-metric').forEach((el) => {
-    const target = Number(el.dataset.target ?? 0);
-    const prefix = el.dataset.prefix ?? '';
-    const suffix = el.dataset.suffix ?? '';
-
-    if (target) {
-      ScrollTrigger.create({
-        trigger: el,
-        start: 'top 80%',
-        once: true,
-        onEnter() {
-          gsap.to({ val: 0 }, {
-            val: target,
-            duration: 2,
-            ease: 'power3.out',
-            snap: { val: 1 },
-            onUpdate() {
-              el.textContent = prefix + Math.round((this as any).targets()[0].val) + suffix;
-            },
-          });
-        },
-      });
-    }
   });
-
-  // ── §5 Work — parallax on case study images ───────────────
-  document.querySelectorAll<HTMLElement>('.case-study-image img').forEach((img) => {
-    gsap.to(img, {
-      y: '-10%',
-      ease: 'none',
-      scrollTrigger: {
-        trigger: img.closest('.case-study-card'),
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: true,
-      },
-    });
-  });
-
-  // ── §6 Testimonials — fade-up stagger ─────────────────────
-  ScrollTrigger.batch('.testimonial-card', {
-    onEnter: (els) => gsap.from(els, {
-      opacity: 0,
-      y: 30,
-      stagger: 0.1,
-      duration: 0.6,
-      ease: 'power2.out',
-    }),
-    start: 'top 80%',
-  });
-
-  // ── §8 Qualifier — diptych slide in from opposite sides ───
-  const qualifier = document.getElementById('qualifier');
-  if (qualifier) {
-    gsap.from('.qualifier-built', {
-      x: -50, opacity: 0, duration: 0.8, ease: 'power3.out',
-      scrollTrigger: { trigger: qualifier, start: 'top 70%' },
-    });
-    gsap.from('.qualifier-not', {
-      x: 50, opacity: 0, duration: 0.8, ease: 'power3.out',
-      scrollTrigger: { trigger: qualifier, start: 'top 70%' },
-    });
-    gsap.from('.qualifier-medallion', {
-      scale: 0, rotation: -90, opacity: 0, duration: 0.8, ease: 'expo.out',
-      scrollTrigger: { trigger: qualifier, start: 'top 70%' },
-    });
-  }
-
-  // ── Custom cursor (pointer/mouse devices only) ─────────────
-  const cursor = document.getElementById('cursor');
-  if (cursor && window.matchMedia('(pointer: fine)').matches) {
-    document.addEventListener('mousemove', (e) => {
-      gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1, ease: 'none' });
-    });
-    document.querySelectorAll('a, button').forEach((el) => {
-      el.addEventListener('mouseenter', () =>
-        gsap.to(cursor, { width: 24, height: 24, background: '#FF5A1F', duration: 0.2 }));
-      el.addEventListener('mouseleave', () =>
-        gsap.to(cursor, { width: 8, height: 8, background: '#FFFFFF', duration: 0.2 }));
-    });
-  }
 }

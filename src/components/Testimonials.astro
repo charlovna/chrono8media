@@ -1,42 +1,137 @@
 ---
 import { TESTIMONIALS } from '../data/content';
+const items = TESTIMONIALS.items;
 ---
 <section
   id="testimonials"
   data-section="testimonials"
-  class="bg-c8-orange py-24 px-4"
+  class="relative bg-c8-black text-c8-white py-24 sm:py-28 md:py-36"
+  aria-label="Brand testimonials"
 >
-  <p class="font-body font-medium text-c8-white/80 text-[12px] tracking-[0.12em] uppercase text-center mb-4">
-    WHAT CLIENTS SAY
-  </p>
-
-  <h2 class="h-display text-c8-white text-center mb-16" style="font-size: var(--text-h2)">
-    <span class="line">WHAT OUR</span>
-    <span class="line">CLIENTS SAY</span>
-  </h2>
-
-  <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-    {TESTIMONIALS.map((t) => (
-      <article
-        class="testimonial-card rounded-2xl p-8 shadow-2xl"
-        style="background: #CFC2B4; perspective: 1000px;"
+  <div class="mx-auto max-w-[1200px] px-6">
+    <header class="max-w-[760px] mb-12 md:mb-16">
+      <p class="font-body font-medium tracking-[0.18em] text-[12px] uppercase text-c8-orange mb-4">
+        {TESTIMONIALS.eyebrow}
+      </p>
+      <h2
+        class="section-heading h-display text-c8-white"
+        data-fit
       >
-        <img
-          src={t.headshot}
-          alt={`${t.name}`}
-          width="80"
-          height="80"
-          class="rounded-full mb-6 object-cover"
-          loading="lazy"
-        />
-        <blockquote class="font-body text-c8-black text-[22px] leading-[1.5] mb-6">
-          "{t.quote}"
-        </blockquote>
-        <footer>
-          <p class="font-display font-bold text-c8-black text-[18px]">{t.name}</p>
-          <p class="font-body text-c8-black/60 text-[14px] mt-1">{t.title}</p>
+        <span class="line">{TESTIMONIALS.heading.line1}</span>
+        <span class="line">{TESTIMONIALS.heading.line2}</span>
+      </h2>
+    </header>
+
+    <!-- Brand-logo grid: 2 cols on mobile, 4 on md+ -->
+    <div
+      class="brand-grid grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"
+      role="tablist"
+      aria-label="Select a brand to see their testimonial"
+    >
+      {items.map((t, i) => (
+        <button
+          type="button"
+          class="brand-tile card-glow flex items-center justify-center px-4 py-6 md:py-8 cursor-pointer focus:outline-none"
+          style="min-height: 110px;"
+          role="tab"
+          aria-selected={i === 0 ? 'true' : 'false'}
+          aria-controls="testimonial-panel"
+          data-index={i}
+          data-name={t.name}
+          data-title={t.title}
+          data-quote={t.quote}
+          data-brand={t.brandName}
+        >
+          <!-- Brand name as the visible label; real logo SVGs swap in once provided.
+               Text rendering keeps tiles legible even before brand SVGs exist. -->
+          <span class="brand-tile-label font-display font-bold uppercase text-center tracking-tight text-c8-white/85 text-[14px] md:text-[15px] leading-tight">
+            {t.brandName}
+          </span>
+        </button>
+      ))}
+    </div>
+
+    <!-- Single quote panel that swaps content based on selected tile -->
+    <article
+      id="testimonial-panel"
+      class="card-glow testimonial-panel mt-6 md:mt-8 p-7 md:p-12"
+      aria-live="polite"
+    >
+      <blockquote class="m-0">
+        <svg
+          class="text-c8-orange mb-5 md:mb-6"
+          aria-hidden="true"
+          width="36" height="28" viewBox="0 0 36 28" fill="currentColor"
+        >
+          <path d="M8 0C3.6 0 0 3.6 0 8v8c0 4.4 3.6 8 8 8 0-4.4-3.6-8-8-8h8V0H8zm20 0c-4.4 0-8 3.6-8 8v8c0 4.4 3.6 8 8 8 0-4.4-3.6-8-8-8h8V0h-8z"/>
+        </svg>
+        <p
+          class="testimonial-quote font-body text-c8-white text-[18px] sm:text-[20px] md:text-[24px] leading-snug max-w-[58ch]"
+          data-field="quote"
+        >
+          {items[0].quote}
+        </p>
+        <footer class="mt-6 md:mt-8 flex items-baseline gap-3 flex-wrap">
+          <cite class="testimonial-name font-display font-bold text-c8-orange not-italic text-[16px] md:text-[18px] uppercase tracking-tight" data-field="name">
+            {items[0].name}
+          </cite>
+          <span class="text-c8-white/40">·</span>
+          <span class="testimonial-title font-body text-c8-white/70 text-[13px] md:text-[14px]" data-field="title">
+            {items[0].title}
+          </span>
         </footer>
-      </article>
-    ))}
+      </blockquote>
+    </article>
   </div>
 </section>
+
+<style>
+  .brand-tile {
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .brand-tile[aria-selected="true"] {
+    border-color: var(--color-c8-orange);
+    transform: translateY(-2px);
+  }
+  .brand-tile[aria-selected="true"] .brand-tile-label {
+    color: var(--color-c8-orange);
+  }
+  .brand-tile:hover { transform: translateY(-2px); }
+  .brand-tile:focus-visible {
+    outline: 2px solid var(--color-c8-orange);
+    outline-offset: 4px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .brand-tile { transition: none; }
+    .brand-tile:hover,
+    .brand-tile[aria-selected="true"] { transform: none; }
+  }
+</style>
+
+<script>
+  const tiles  = document.querySelectorAll<HTMLButtonElement>('.brand-tile');
+  const quote  = document.querySelector<HTMLElement>('[data-field="quote"]');
+  const nameEl = document.querySelector<HTMLElement>('[data-field="name"]');
+  const title  = document.querySelector<HTMLElement>('[data-field="title"]');
+
+  function select(tile: HTMLButtonElement) {
+    tiles.forEach((t) => t.setAttribute('aria-selected', t === tile ? 'true' : 'false'));
+    if (quote)  quote.textContent  = tile.dataset.quote ?? '';
+    if (nameEl) nameEl.textContent = tile.dataset.name  ?? '';
+    if (title)  title.textContent  = tile.dataset.title ?? '';
+  }
+
+  tiles.forEach((tile) => {
+    tile.addEventListener('click', () => select(tile));
+    tile.addEventListener('keydown', (e) => {
+      const idx = Number(tile.dataset.index);
+      let next: HTMLButtonElement | undefined;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        next = tiles[(idx + 1) % tiles.length];
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        next = tiles[(idx - 1 + tiles.length) % tiles.length];
+      }
+      if (next) { e.preventDefault(); next.focus(); select(next); }
+    });
+  });
+</script>

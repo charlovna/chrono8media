@@ -1,0 +1,104 @@
+---
+import { EXPERTISE } from '../data/content';
+---
+<section
+  id="expertise"
+  data-section="expertise"
+  class="relative bg-c8-black text-c8-white py-24 sm:py-28 md:py-36"
+  aria-label="What we'll do for you"
+>
+  <div class="mx-auto max-w-[1200px] px-6">
+    <header class="max-w-[760px] mb-14 md:mb-20">
+      <p class="font-body font-medium tracking-[0.18em] text-[12px] uppercase text-c8-orange mb-4">
+        {EXPERTISE.eyebrow}
+      </p>
+      <h2
+        class="section-heading h-display text-c8-white"
+        data-fit
+      >
+        <span class="line">{EXPERTISE.heading.line1}</span>
+        <span class="line">{EXPERTISE.heading.line2}</span>
+      </h2>
+      <p class="mt-6 text-c8-white/75 text-[16px] sm:text-[17px] md:text-[18px] leading-relaxed max-w-[60ch]">
+        {EXPERTISE.intro}
+      </p>
+    </header>
+
+    <ul class="expertise-list flex flex-col gap-3 md:gap-4 list-none p-0 m-0">
+      {EXPERTISE.items.map((item, i) => (
+        <li>
+          <details class="expertise-row card-glow group" style="border-radius: 18px;">
+            <summary
+              class="expertise-summary flex items-center justify-between gap-4 px-5 py-5 md:px-7 md:py-6 cursor-pointer list-none select-none"
+              style="min-height: 64px;"
+            >
+              <span class="flex items-center gap-5 md:gap-6 min-w-0">
+                <span
+                  class="font-body tracking-[0.18em] text-[12px] text-c8-orange shrink-0"
+                  aria-hidden="true"
+                >
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span class="expertise-title font-display font-bold text-c8-white text-[18px] sm:text-[20px] md:text-[22px] uppercase tracking-tight truncate">
+                  {item.title}
+                </span>
+              </span>
+              <span
+                class="expertise-chev inline-flex items-center justify-center shrink-0 w-10 h-10 rounded-full border border-c8-white/15 text-c8-white/70 transition-transform duration-300 group-open:rotate-45 group-open:border-c8-orange group-open:text-c8-orange"
+                aria-hidden="true"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </span>
+            </summary>
+
+            <div class="expertise-body px-5 pb-6 md:px-7 md:pb-8 pt-0">
+              <p class="text-c8-white/80 text-[15px] sm:text-[16px] leading-relaxed mb-5 max-w-[60ch]">
+                {item.summary}
+              </p>
+              <ul class="expertise-works grid grid-cols-1 sm:grid-cols-2 gap-2 list-none p-0 m-0">
+                {item.works.map((work) => (
+                  <li class="flex items-start gap-3 text-c8-white/85 text-[14px] sm:text-[15px]">
+                    <span class="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-c8-orange shrink-0" aria-hidden="true"/>
+                    <span>{work}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </details>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* Remove the default disclosure marker across browsers */
+  .expertise-summary::-webkit-details-marker { display: none; }
+  .expertise-summary::marker { display: none; content: ''; }
+
+  /* Visible focus for keyboard users (mirrors the global focus token) */
+  .expertise-summary:focus-visible {
+    outline: 2px solid var(--color-c8-orange);
+    outline-offset: 4px;
+    border-radius: 14px;
+  }
+
+  /* Body reveal — uses CSS only, honors reduced motion */
+  .expertise-body {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.45s cubic-bezier(.65,0,.35,1), opacity 0.3s ease, padding 0.3s ease;
+  }
+  details[open] .expertise-body {
+    max-height: 600px;
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .expertise-body,
+    .expertise-chev { transition: none; }
+  }
+</style>

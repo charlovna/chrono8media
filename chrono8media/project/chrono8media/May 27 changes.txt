@@ -1,0 +1,569 @@
+CHRONO8 MEDIA - SESSION CHANGELOG
+Date: 2026-05-27
+Repo: github.com/charlovna/chrono8media (branch: main)
+Local: c:\Users\My PC\Downloads\chrono8media-handoff\
+
+This is a flat text log of every change made in this session. Read top to bottom.
+Use it to brief the next session, the agency, or any other dev.
+
+
+=======================================================================
+PROJECT GOVERNANCE
+=======================================================================
+
+CLAUDE.md updated with three new "Always Active" rules:
+  1. Mobile-First. Design at 375px width first, then enhance for
+     tablet (>=768px) and desktop (>=1024px). Tap targets >=44x44px.
+     No hover-only affordances. Validate on 375x667 before declaring done.
+  2. Writing Style. No em dashes anywhere in the project (code, content,
+     vault, commits, chat). Use hyphens, colons, parentheses, or two
+     sentences instead.
+  3. (Pre-existing) Obsidian Vault Policy. Requires explicit in-session
+     approval before reading or writing any file inside an .obsidian vault.
+
+
+=======================================================================
+REPO STATE
+=======================================================================
+
+Version control:
+  - Initial commit landed on main branch (commit 79db399)
+  - Remote: https://github.com/charlovna/chrono8media.git
+  - .gitignore excludes node_modules, dist, .env, .claude/settings.local.json,
+    .obsidian/workspace.json
+  - GitHub CLI authenticated as charlovna
+
+Production build target:
+  - Astro 6 site in /src compiles to /dist
+  - Cloudflare Pages will host the static output
+  - The HTML prototype at chrono8media/project/Chrono8 Media.html is the
+    DESIGN SOURCE OF TRUTH only. It is NOT deployed.
+
+
+=======================================================================
+SITE STRUCTURE (FINAL ORDER)
+=======================================================================
+
+  1. Hero (#hero, orange bg)
+  2. Expertise (#expertise, "What We'll Do For You", 6 expandable rows)
+  3. PillarsStack (#sectionPillars, pinned crossfade, 4 viewports of scroll)
+  4. Testimonials (#testimonials, brand-tile grid + revealed quote panel)
+  5. Process (#process, vertical timeline, 4 steps)
+  6. WhyUs (#why-us, 3 cards with line-art icons)
+  7. CompleteCTA (#complete-cta, split form + info, stubbed submit)
+  8. Footer (multi-column, brand + Quick Links + Services + Legal)
+
+Sections removed during the agency revision:
+  - TrustMarquee (deleted)
+  - ProblemFrame (deleted)
+  - Qualifier "Built / Not For" diptych (deleted)
+  - FinalCTA with Behold.so Instagram embed (deleted)
+  - CaseStudies (deleted, never wired into new flow)
+  - StickyCTA (deleted, Hero CTA + contact form replace it)
+
+
+=======================================================================
+HERO (slice 1 + slice A)
+=======================================================================
+
+Copy: "YOUR PARTNER IN" / "DIGITAL MARKETING."
+  - Italic emphasis on DIGITAL MARKETING
+  - CTA: "Get Started" smooth-scrolls to #complete-cta
+
+Background: ORANGE (matches prototype hero). Black pill CTA. White text.
+A ghost logo sits behind the headline at 8% opacity (prototype hallmark).
+
+Typography ported from prototype (CLAUDE.md "Headline System"):
+  - font-family: PP Neue Machina (Space Grotesk fallback in dev)
+  - font-weight: 800
+  - text-transform: uppercase
+  - letter-spacing: -0.025em
+  - line-height: 0.92
+  - font-stretch: condensed
+  - Size clamp: clamp(1.7rem, 6.5vw, 7rem)
+
+Strict 2-line policy enforced:
+  - Exactly two <span class="line"> elements
+  - fitLine() in src/motion/fit.ts steps font-size down 4% per pass until
+    both lines fit without wrap. Runs on load, on resize, after fonts load.
+
+Five UNIQUE entrance animations (no two text elements share a motion):
+  1. Brand "CHRONO8 MEDIA": blur-clear fade-down (10px blur to 0)
+  2. Headline line 1: GSAP TextPlugin typewriter, blinking caret
+  3. Headline line 2: scramble (vanilla helper, preserves <em> italic)
+  4. Sub paragraph: per-word slide-up stagger
+  5. CTA button: elastic scale-pop (elastic.out(1, 0.55))
+
+3D logo (right column):
+  - Idle float loop via requestAnimationFrame (rotateX/Y + bob)
+  - Cursor-tracking tilt on desktop (perspective + rotateX/Y + translateZ)
+
+
+=======================================================================
+PILLARS (slice 2)
+=======================================================================
+
+Ported from prototype Chrono8 Media.html lines 1388 to 1450.
+Bug fix: pillars 2 and 3 were missing/broken in the agency build.
+
+DOM structure now matches prototype:
+  - .pillars (outer) is 400vh tall, position: relative
+  - .pillars-pin (inner) is position: sticky, top: 0, 100vh, overflow: hidden
+  - .pillar-card (each) is position: absolute, inset: 0, opacity-controlled
+  - Full-viewport .pillar-watermark with inner <div> for the 3D scrub
+
+ScrollTrigger logic (src/motion/scroll.ts initPillars):
+  - trigger: section, start: top top, end: +=400%, pin: #pillarsPin, scrub: 0.6
+  - Crossfade: current card fades out near end of its viewport slice (0.7-1.0)
+    while next card fades in.
+  - Body scale + lift: each .pillar-body translateY and scale based on
+    distance from current progress.
+  - 3D logo watermark scrub across full progress:
+      rotateY: 0 to 720 (two full Y spins)
+      rotateX: sine wobble +/- 12 deg
+      rotateZ: sine arc +/- 6 deg
+      scale:   breathes 1.0 to 1.18 mid-way
+      translateZ: depth dip up to -80px
+      filter:  motion blur up to 0.6px
+
+Reduced motion fallback stacks the cards vertically with normal flow.
+
+
+=======================================================================
+MOTION + INTERACTION LAYER (slice 3)
+=======================================================================
+
+All animation modules live in src/motion/:
+
+  lenis.ts        Lenis smooth scroll. Config matches prototype
+                  (duration 1.15, custom expo easing).
+                  Exposes window.__c8Lenis for CTAs and SectionNav.
+                  Skips on touch + reduced motion.
+
+  fit.ts          fitLine safety net for ALL strict-2-line headlines.
+                  Targets .hero-headline, .whyus-heading, [data-fit].
+
+  scramble.ts     Vanilla scrambleIn helper. Same API as GSAP
+                  ScrambleTextPlugin but no Club GreenSock license needed.
+                  Preserves inner HTML (incl. <em>).
+
+  hero.ts         5-unique-animation hero timeline (see HERO section above).
+
+  scroll.ts       initPillars (pinned crossfade + 3D watermark scrub) and
+                  initHeadingScramble (every section h2 scrambles on enter,
+                  excluding hero and pillars which have bespoke motion).
+
+  interactions.ts Char-swap CTAs (Anthropic-style stacked top/bottom),
+                  magnetic buttons (12px pull on cursor proximity),
+                  custom cursor follower (#cursor) that grows orange
+                  over interactive elements.
+
+Wired from src/components/MotionRoot.astro in this order:
+  initLenis -> initFit -> initHero -> initScrollAnimations -> initInteractions
+
+
+=======================================================================
+SECTION NAV (slice C)
+=======================================================================
+
+New component: src/components/SectionNav.astro
+
+Ported from prototype dotnav (Chrono8 Media.html lines 1093-1103 / 1643-1661).
+
+  - Right-edge fixed dot column, vertically centered
+  - 7 dots, one per section
+  - Click smooth-scrolls via Lenis (window.__c8Lenis), native fallback
+  - Active section tracked from window.scrollY, gets pulsing orange ring
+  - Hover dot shows label tooltip (uppercase, mono-feel)
+  - Reveals after scrolling past 40% of first viewport
+  - Hidden on viewports <=768px (mobile uses Hero CTA + scroll)
+  - Color-aware: when active section has data-bg="orange",
+    nav backdrop and dots invert to dark for contrast
+
+
+=======================================================================
+EXPERTISE (slice from earlier session)
+=======================================================================
+
+New component: src/components/Expertise.astro
+6 expertise rows (Video Editing, Graphic Design, Content Strategy,
+Social Media Growth, Content Ideation, Social Media Management).
+Native <details>/<summary> for zero-JS keyboard-accessible expand.
+Each row reveals 4 sample work bullets when opened.
+
+
+=======================================================================
+TESTIMONIALS (rewritten)
+=======================================================================
+
+src/components/Testimonials.astro now renders a brand-tile grid
+(2-col mobile, 4-col desktop) plus a single quote panel below.
+Tile click swaps the panel content. Arrow keys navigate.
+Brand logo SVGs to be added to /public/images/brand-logos/.
+
+
+=======================================================================
+PROCESS (rewritten)
+=======================================================================
+
+src/components/Process.astro now renders a vertical 4-step timeline:
+Strategy / Creation / Execution / Optimization.
+Mobile-first: spine anchored left, cards full width.
+Desktop (>=md): spine centered, cards alternate left/right.
+Scroll progress drives a CSS var (--spine-progress) that fills the spine.
+
+
+=======================================================================
+WHY US (slice B)
+=======================================================================
+
+src/components/WhyUs.astro:
+  - Removed "WHY CHRONO8" eyebrow (agency feedback)
+  - Heading now strict 2 lines: "WHY CHRONO8 MEDIA" / "STANDS ABOVE THE REST."
+  - fitLine via motion/fit.ts enforces 2 lines at every breakpoint
+  - 3 cards with inline line-art SVG icons (network, infinity, trending-up)
+    sourced from Lucide
+  - Orange edge-glow via .card-glow utility in global.css
+
+
+=======================================================================
+COMPLETE CTA (form)
+=======================================================================
+
+src/components/CompleteCTA.astro split 2-col rounded container.
+Left: form (Name, Email, Company, Project Details) with stubbed submit.
+Right: contact info column (email, location, response time, socials).
+
+Form is STUBBED this pass. Marked with data-stub="true".
+On submit: validates locally, disables fields, shows success message
+("Thanks, we'll reply within 24 hours.").
+
+When the backend ships (Cloudflare Pages Functions + D1 + Resend per
+Obsidian D-002 and D-003 decision notes), swap the handler in the
+inline script. No DOM changes needed.
+
+
+=======================================================================
+FOOTER (rewritten)
+=======================================================================
+
+src/components/Footer.astro:
+Multi-column layout:
+  - Brand col (logo + description)
+  - Quick Links
+  - Services
+  - Legal
+  - Divider + centered copyright
+
+
+=======================================================================
+SHARED UTILITIES (global.css)
+=======================================================================
+
+New utility classes added to src/styles/global.css:
+  .orange-key      Orange keyword span for sub copy
+  .card-glow       Black surface with soft orange edge-glow border
+                   (replaces the magenta glow from the screenshot reference)
+  .timeline-spine  Vertical rail used by the Process timeline
+  .field-label     Form label (mono-feel uppercase)
+  .field-input     Form text input (dark surface, orange focus)
+  .field-textarea  Form multi-line input
+  .btn-label       Char-swap CTA wrapper
+  .char-swap       Each char (with top/bottom inner pair) for CTA hover
+  #cursor          Custom cursor dot (.is-hot enlarges + orange)
+
+
+=======================================================================
+DEPENDENCIES
+=======================================================================
+
+Added this session:
+  - lucide (for future icon needs; currently using inline SVG copies)
+  - @astrojs/check (dev, type-checker)
+
+Already present:
+  - astro ^5.0.0  (sic; CLAUDE.md targets Astro 6, package on 5)
+  - gsap ^3.13.0  (with TextPlugin and ScrollTrigger imported)
+  - lenis ^1.1.0
+  - tailwindcss ^4.0.0 with @tailwindcss/vite
+  - @astrojs/sitemap
+
+
+=======================================================================
+KNOWN GAPS (user to resolve before launch)
+=======================================================================
+
+  1. Font WOFF2 files missing from /public/fonts/
+     Currently using Space Grotesk + Geist from Google Fonts as dev fallback.
+     Buy PP Neue Machina + PP Neue Montreal from pangrampangram.com,
+     drop the WOFF2 files into /public/fonts/, swap CSS @font-face URLs.
+
+  2. /public/noise.png missing. Noise overlay is a no-op until provided.
+
+  3. Brand logo SVGs missing from /public/images/brand-logos/.
+     Testimonial tiles render brand names as text fallback until added.
+
+  4. Cloudflare account not yet created.
+     Required for Pages deploy and the backend stack (D1, Resend,
+     Turnstile, Tina). Per Obsidian D-006, domain is also deferred.
+
+  5. Backend not built. Per Obsidian backend plan, deferred until
+     frontend ships. Contact form is currently stubbed (no network call).
+     User noted on 2026-05-27 that the backend will include a dashboard
+     for non-technical / no-code content editors. The D-004 Tina CMS
+     decision already covers this in principle. The dashboard UX
+     expectations (WYSIWYG, image upload, no markdown/git knowledge
+     required) should be appended to D-004 when backend work starts.
+
+  6. ScrambleTextPlugin from GSAP Club is NOT installed. Project uses a
+     vanilla scramble helper instead (motion/scramble.ts). If Club
+     license is purchased, swap call sites trivially.
+
+
+=======================================================================
+VERIFICATION STATUS (as of session end)
+=======================================================================
+
+  - npx astro check: 0 errors, 0 warnings, 0 hints (22 files)
+  - npm run build:    succeeded, 1 page generated
+  - npm run dev:      running at http://localhost:4321 in background
+  - User to verify visually at 375px, 768px, 1024px, 1440px breakpoints
+  - User to verify keyboard tab-through, prefers-reduced-motion, form stub
+
+
+=======================================================================
+NEXT SESSION CHECKLIST
+=======================================================================
+
+If picking this up cold, do this first:
+  1. Read CLAUDE.md top to bottom (especially Always Active sections).
+  2. Read the auto-memory at .claude/projects/.../memory/MEMORY.md
+     for user profile, project state, and feedback rules.
+  3. Skim this changelog.
+  4. Run npm install (lockfile may have changed) then npm run dev.
+  5. Open localhost:4321.
+
+To continue work, the next likely slice is one of:
+  - Deploy preview pipeline (Cloudflare Pages + GitHub Action)
+  - Backend slice (Pages Functions + D1 + Resend wiring per Obsidian D-002+)
+  - Real brand logo SVGs + font WOFF2 swap-in
+  - Tweak per agency feedback after they review the preview link
+
+End of changelog.
+
+
+=======================================================================
+UPDATE — MAY 27 (CONTINUATION)
+Post-agency-review iteration. Mobile testing active via LAN.
+Server: http://192.168.1.13:4322 (Astro dev, --host flag, Ethernet + Wi-Fi, same router)
+=======================================================================
+
+
+-----------------------------------------------------------------------
+1. SECTION NAV — REWRITTEN: RIGHT-EDGE DOTS TO STICKY TOP TAB BAR
+   File: src/components/SectionNav.astro
+-----------------------------------------------------------------------
+
+Previous implementation was a right-edge vertical dot column hidden on
+mobile viewports (<=768px). Replaced with a horizontal sticky tab bar
+fixed to the top of the viewport, accessible on every screen size.
+
+Behavior:
+  - Slides down from the top after the user scrolls 30% of the hero
+  - 7 tabs: Home, Services, Pillars, Brands, Process, Why Us, Contact
+  - Click or tap smooth-scrolls to the target section via Lenis
+    (window.__c8Lenis). Offset accounts for bar height so headings
+    are never hidden behind the nav.
+  - Active tab tracks scroll position in real time. Active state:
+    orange underline pip animates in via width transition.
+  - Mobile: track is horizontally scrollable (scrollbar hidden).
+    Bar auto-scrolls to keep the active tab in view.
+  - Color-aware: detects data-bg="orange" on the current section and
+    inverts the bar palette (dark glass on black sections, dark on
+    orange sections) for contrast.
+  - scroll-padding-top: 56px applied globally so anchor jumps clear
+    the bar height.
+  - Tap target: 52px min-height on each tab (above 44px mobile rule).
+  - Reduced motion: all transitions disabled, no pip animation.
+
+
+-----------------------------------------------------------------------
+2. HERO ANIMATIONS — FIVE UNIQUE MECHANICAL MOTIONS
+   File: src/motion/hero.ts, src/components/Hero.astro
+-----------------------------------------------------------------------
+
+Problem: previous animations were visually similar (variations of
+opacity fades). User required each element to use a mechanically
+distinct motion technique. Scramble text removed entirely.
+
+Motion assignments (no two share a mechanic):
+  1. Brand "CHRONO8 MEDIA"
+       Technique: letter-spacing expansion (tight 0.06em to wide 0.18em)
+       combined with opacity. Brand settles into place like a stamp.
+
+  2. Headline line 1 "YOUR PARTNER IN"
+       Technique: GSAP TextPlugin typewriter, char-by-char.
+       A blinking caret (.tw-caret) leads the typing cursor.
+
+  3. Headline line 2 "DIGITAL MARKETING."
+       Technique: GSAP TextPlugin typewriter (caret carries over from
+       line 1). On complete, innerHTML is restored so the <em> italic
+       emphasis on "DIGITAL MARKETING" reappears cleanly.
+
+  4. Sub paragraph
+       Technique: CSS clip-path mask wipe, left to right curtain reveal.
+       expo.inOut easing. Text is not animated char-by-char; the whole
+       block reveals as a clean sweep.
+
+  5. CTA button "Get Started"
+       Technique: smooth slide-up from translateY(40px) + scale(0.95)
+       to resting position. expo.out ease. No bounce, no elastic.
+
+Ghost logo (behind headline): fades from 0 to 0.08 opacity across 1.6s
+(sine.out) overlapping with the brand entrance. Unchanged from before.
+
+3D logo float (right column): idle requestAnimationFrame loop and cursor-
+tilt on desktop. Unchanged.
+
+Reduced motion: all entrance animations skipped. Final state rendered
+immediately. Caret hidden via CSS.
+
+Implementation note: TextPlugin typewriter flattens innerHTML (removes
+<em> tags) during typing. The italic emphasis is preserved by stashing
+line.innerHTML before the typewriter runs and re-instating it in
+onComplete. The plain text types first; the styled HTML restores the
+moment typing finishes on that line.
+
+
+-----------------------------------------------------------------------
+3. STRICT 2-LINE POLICY — ENFORCED GLOBALLY ACROSS ALL HEADINGS
+   Files: src/data/content.ts, all section components, src/motion/fit.ts,
+          src/styles/global.css
+-----------------------------------------------------------------------
+
+Problem: section headings (Expertise, Testimonials, Process, Contact)
+were free-flowing strings that wrapped to 3+ lines on narrow viewports.
+CLAUDE.md mandates exactly 2 lines on every display headline.
+
+Changes made:
+
+  content.ts:
+    All section heading strings replaced with {line1, line2} objects.
+
+    Section         Line 1                    Line 2
+    --------------- ------------------------- --------------------------
+    Expertise       WHAT WE'LL DO             FOR YOU.
+    Testimonials    BRANDS WE                 WORK WITH.
+    Process         HOW OUR                   SYSTEM WORKS.
+    Why Us          WHY CHRONO8 MEDIA         STANDS ABOVE THE REST.
+    Contact CTA     READY TO SCALE WITH       A REAL CONTENT SYSTEM.
+    Hero            YOUR PARTNER IN           [DIGITAL MARKETING].
+
+  Component updates (Expertise, Testimonials, Process, CompleteCTA):
+    - h2 heading changed from plain string render to two
+      <span class="line"> children.
+    - Added class="section-heading" and data-fit attribute to each h2.
+    - Removed inline font-size style; sizing now handled by .section-heading
+      CSS rule and fitLine() scaling.
+
+  global.css:
+    - .h-display > .line: white-space: nowrap (prevents wrapping within a line)
+    - .section-heading: CSS custom property --fit-scale: 1, font-size clamp
+      calc(clamp(1.8rem, 7vw, 5rem) * var(--fit-scale))
+
+  motion/fit.ts:
+    - TARGET_SELECTOR broadened from '.hero-headline, .whyus-heading, [data-fit]'
+      to include '.section-heading' so every section h2 is covered automatically.
+    - fitLine() steps --fit-scale down 4% per pass (max 18 passes) until both
+      .line children fit within their container without overflow.
+    - Runs on: initial boot, window resize (RAF-debounced), document.fonts.ready
+      (ensures measurements use real glyph metrics, not fallback).
+
+
+-----------------------------------------------------------------------
+4. SECTION HEADING ANIMATIONS — TYPEWRITER REPLACES SCRAMBLE
+   File: src/motion/scroll.ts
+-----------------------------------------------------------------------
+
+Previous: section h2 headings scrambled in (random uppercase chars
+revealing final text) via a vanilla scramble helper on scroll entry.
+
+Replaced with: GSAP TextPlugin typewriter on scroll entry (same
+technology as the hero headline). Each section heading's two .line spans
+type in sequentially: line 1 completes, then line 2 begins 80ms later.
+
+If a .line contains <em> markup (italic emphasis), the same stash-and-
+restore pattern used in hero.ts applies: plain text types, innerHTML is
+restored in onComplete so italic renders the moment the word finishes.
+
+Trigger: ScrollTrigger, start 'top 82%', once: true.
+Duration per line: capped at max(0.4s, character_count * 0.04s).
+
+src/motion/scramble.ts remains in the codebase but is no longer called
+from any production path. Can be deleted in a cleanup pass.
+
+
+-----------------------------------------------------------------------
+5. PROJECT RULES UPDATES
+-----------------------------------------------------------------------
+
+CLAUDE.md additions (session-persistent rules):
+
+  Writing Style (Always Active):
+    No em dashes (--) anywhere in the project. Applies to all code
+    comments, copy in content.ts, vault notes, commit messages, and
+    chat replies. Use hyphens (-), colons (:), parentheses, or split
+    into two sentences.
+
+  Mobile-First (Always Active):
+    Already documented in previous changelog section.
+
+Memory file created:
+  .claude/projects/.../memory/feedback_no_em_dashes.md
+
+
+-----------------------------------------------------------------------
+6. MOBILE / LAN TESTING SETUP
+-----------------------------------------------------------------------
+
+Dev server running with --host flag, binding to all LAN interfaces.
+PC is on Ethernet; phone on Wi-Fi; both on the same home router (same
+subnet, 192.168.1.x). Network URL accessible to all devices on the LAN.
+
+Current URL for phone testing: http://192.168.1.13:4322/
+(Port 4322 because 4321 was already occupied by a previous server process.)
+
+To restart the server fresh:
+  cd "C:\Users\My PC\Downloads\chrono8media-handoff"
+  npm run dev -- --host
+
+Windows Firewall note: if the phone cannot connect, allow inbound TCP
+4321/4322 in Windows Defender. Run as Admin:
+  New-NetFirewallRule -DisplayName "Astro Dev" -Direction Inbound -Protocol TCP -LocalPort 4321-4322 -Action Allow
+
+
+-----------------------------------------------------------------------
+VERIFICATION STATUS (as of this update)
+-----------------------------------------------------------------------
+
+  - npx astro check:  0 errors, 0 warnings, 0 hints (22 files)
+  - npm run build:    succeeded, 1 page generated
+  - npm run dev:      running at http://192.168.1.13:4322 (--host)
+  - Mobile testing:   active (user verifying on phone over LAN)
+  - Reduced motion:   all hero and section animations have reduced-motion
+                      fallbacks (final state shown immediately, no transitions)
+
+
+-----------------------------------------------------------------------
+OPEN ITEMS ADDED THIS UPDATE
+-----------------------------------------------------------------------
+
+  - src/motion/scramble.ts is now dead code. Remove in next cleanup pass.
+  - Brand logo SVGs still missing from /public/images/brand-logos/.
+    Testimonial tiles render brand names as text until provided.
+  - Font WOFF2 files still missing. Dev uses Space Grotesk + Geist fallback.
+  - No commits made this update session. Changes are staged locally only.
+    Commit recommended after mobile verification passes.
+
+
+End of update.

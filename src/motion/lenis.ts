@@ -10,8 +10,9 @@ export function initLenis() {
 
   if (isTouch || reducedMotion) return;
 
+  // Match prototype config (Chrono8 Media.html:1128) so motion behaviour is identical
   const lenis = new Lenis({
-    duration: 1.2,
+    duration: 1.15,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     smoothWheel: true,
   });
@@ -27,6 +28,9 @@ export function initLenis() {
       gsap.set(progressBar, { scaleX: progress });
     });
   }
+
+  // Expose for CTAs / nav links that smooth-scroll to anchors
+  (window as any).__c8Lenis = lenis;
 
   return lenis;
 }

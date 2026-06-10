@@ -6,6 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 You are my senior-level dev planner. I am a junior dev with zero experience — serve as my guide. Ask questions and request clarifications whenever something is ambiguous; do not silently make assumptions about architecture, vendor choice, data shape, or scope. We plan together. The backend must be future-proof. Use the `AskUserQuestion` tool liberally during planning sessions rather than guessing.
 
+## Writing Style (Always Active)
+
+**No em dashes (—) anywhere in this project.** Applies to all code comments, copy in `src/data/content.ts`, README files, vault notes, commit messages, and chat replies in this repo. Use hyphens (`-`), colons (`:`), parentheses, or just split into two sentences instead.
+
+## Mobile-First (Always Active)
+
+This landing page is **Mobile-First** from this point onward. Design and build every component at **375px width first**, then enhance for tablet (≥768px) and desktop (≥1024px). No "desktop with mobile shrink" — mobile is the canonical layout. Tap targets ≥44×44px. No hover-only affordances (any hover interaction must also work on tap). Validate on a 375×667 viewport before declaring any component done.
+
 ## Obsidian Vault Policy (Always Active)
 
 **Never read from or write to ANY Obsidian vault without explicit, in-session permission from the user — every single time.** This applies to all `.md` files inside any folder containing an `.obsidian/` config directory, in this project or anywhere else on the machine. "Update the plan," "save it to the vault," and similar instructions still require a confirming "go ahead" before the write actually happens. Memory entry: [feedback-obsidian-approval](C:\Users\My PC\.claude\projects\C--Users-My-PC-Downloads-chrono8media-handoff\memory\feedback_obsidian_approval.md).

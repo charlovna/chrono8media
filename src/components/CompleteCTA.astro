@@ -1,0 +1,175 @@
+---
+import { COMPLETE_CTA } from '../data/content';
+
+const SOCIAL_SVG: Record<string, string> = {
+  instagram: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>`,
+  tiktok:    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>`,
+};
+---
+<section
+  id="complete-cta"
+  data-section="complete-cta"
+  class="relative bg-c8-black text-c8-white py-24 sm:py-28 md:py-36 scroll-mt-20"
+  aria-label="Contact form"
+>
+  <div class="mx-auto max-w-[1200px] px-6">
+    <header class="max-w-[760px] mb-12 md:mb-16 text-center mx-auto">
+      <h2
+        class="section-heading h-display text-c8-white"
+        data-fit
+      >
+        <span class="line">{COMPLETE_CTA.heading.line1}</span>
+        <span class="line">{COMPLETE_CTA.heading.line2}</span>
+      </h2>
+      <p class="mt-5 text-c8-white/75 text-[16px] sm:text-[17px] md:text-[18px] leading-relaxed">
+        {COMPLETE_CTA.sub}
+      </p>
+    </header>
+
+    <div class="card-glow grid grid-cols-1 md:grid-cols-[1.15fr_0.85fr] gap-0 overflow-hidden">
+      <!-- LEFT: form -->
+      <form
+        class="contact-form p-7 md:p-10 flex flex-col gap-5"
+        data-stub="true"
+        novalidate
+      >
+        <div>
+          <label for="cta-name" class="field-label">{COMPLETE_CTA.form.fields.name.label}</label>
+          <input
+            id="cta-name" name="name" type="text" required autocomplete="name"
+            class="field-input"
+            placeholder={COMPLETE_CTA.form.fields.name.placeholder}
+          />
+        </div>
+        <div>
+          <label for="cta-email" class="field-label">{COMPLETE_CTA.form.fields.email.label}</label>
+          <input
+            id="cta-email" name="email" type="email" required autocomplete="email"
+            class="field-input"
+            placeholder={COMPLETE_CTA.form.fields.email.placeholder}
+          />
+        </div>
+        <div>
+          <label for="cta-company" class="field-label">{COMPLETE_CTA.form.fields.company.label}</label>
+          <input
+            id="cta-company" name="company" type="text" autocomplete="organization"
+            class="field-input"
+            placeholder={COMPLETE_CTA.form.fields.company.placeholder}
+          />
+        </div>
+        <div>
+          <label for="cta-details" class="field-label">{COMPLETE_CTA.form.fields.details.label}</label>
+          <textarea
+            id="cta-details" name="details" required
+            class="field-textarea"
+            placeholder={COMPLETE_CTA.form.fields.details.placeholder}
+          ></textarea>
+        </div>
+
+        <p class="form-error text-c8-orange text-[13px] hidden" role="alert" data-role="error"></p>
+
+        <button
+          type="submit"
+          class="cta-submit inline-flex items-center justify-center gap-3 mt-2 bg-c8-orange text-c8-black font-body font-bold rounded-full px-7 py-4 text-[15px] tracking-[0.02em] transition-all duration-200 hover:-translate-y-0.5 hover:bg-c8-white focus-visible:ring-2 focus-visible:ring-c8-white disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span data-role="submit-label">{COMPLETE_CTA.form.submitLabel}</span>
+          <span aria-hidden="true">→</span>
+        </button>
+
+        <p
+          class="form-success hidden text-c8-orange text-[14px] mt-2"
+          role="status"
+          aria-live="polite"
+          data-role="success"
+        >
+          {COMPLETE_CTA.form.successText}
+        </p>
+      </form>
+
+      <!-- RIGHT: info column -->
+      <aside
+        class="info-col p-7 md:p-10 flex flex-col gap-6 border-t border-c8-white/10 md:border-t-0 md:border-l"
+        style="background: color-mix(in oklab, var(--color-c8-orange) 5%, transparent);"
+      >
+        <div>
+          <h3 class="font-display font-bold text-c8-white uppercase tracking-tight text-[20px] md:text-[22px] mb-2">
+            {COMPLETE_CTA.info.heading}
+          </h3>
+          <p class="font-body text-c8-white/75 text-[15px] leading-relaxed">
+            {COMPLETE_CTA.info.sub}
+          </p>
+        </div>
+
+        <dl class="info-list flex flex-col gap-4">
+          <div>
+            <dt class="field-label">Email</dt>
+            <dd class="m-0">
+              <a href={`mailto:${COMPLETE_CTA.info.email}`} class="font-body text-c8-white hover:text-c8-orange transition-colors">
+                {COMPLETE_CTA.info.email}
+              </a>
+            </dd>
+          </div>
+          <div>
+            <dt class="field-label">Location</dt>
+            <dd class="m-0 font-body text-c8-white">{COMPLETE_CTA.info.location}</dd>
+          </div>
+          <div>
+            <dt class="field-label">Response Time</dt>
+            <dd class="m-0 font-body text-c8-white">{COMPLETE_CTA.info.responseTime}</dd>
+          </div>
+        </dl>
+
+        <ul class="socials flex items-center gap-3 list-none p-0 m-0 mt-auto">
+          {COMPLETE_CTA.info.socials.map((s) => (
+            <li>
+              <a
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={s.label}
+                class="social-link inline-flex items-center justify-center w-11 h-11 rounded-full border border-c8-white/15 text-c8-white/80 hover:text-c8-orange hover:border-c8-orange transition-colors"
+                set:html={SOCIAL_SVG[s.icon] ?? ''}
+              />
+            </li>
+          ))}
+        </ul>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('.contact-form[data-stub="true"]');
+  if (form) {
+    const errEl    = form.querySelector<HTMLElement>('[data-role="error"]');
+    const okEl     = form.querySelector<HTMLElement>('[data-role="success"]');
+    const labelEl  = form.querySelector<HTMLElement>('[data-role="submit-label"]');
+    const submit   = form.querySelector<HTMLButtonElement>('.cta-submit');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const name = (data.get('name') ?? '').toString().trim();
+      const email = (data.get('email') ?? '').toString().trim();
+      const details = (data.get('details') ?? '').toString().trim();
+      const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+
+      if (!name || !emailOk || !details) {
+        if (errEl) {
+          errEl.classList.remove('hidden');
+          errEl.textContent = !emailOk
+            ? 'Please enter a valid email address.'
+            : 'Please fill in your name and project details.';
+        }
+        return;
+      }
+
+      // Stub success — replace with real Pages Function endpoint later
+      errEl?.classList.add('hidden');
+      form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea').forEach((el) => el.setAttribute('disabled', 'true'));
+      submit?.setAttribute('disabled', 'true');
+      if (labelEl) labelEl.textContent = 'Sent';
+      okEl?.classList.remove('hidden');
+    });
+  }
+</script>

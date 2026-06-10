@@ -1,43 +1,262 @@
 ---
 import Logo from './Logo.astro';
 import { HERO } from '../data/content';
+
+// Sub keyword wrapping: render any {{phrase}} in black on the orange hero.
+function renderKeywords(text: string) {
+  return text.split(/(\{\{[^}]+\}\})/g).map((chunk) => {
+    const m = chunk.match(/^\{\{(.+)\}\}$/);
+    return m ? `<span class="hero-key">${m[1]}</span>` : chunk;
+  }).join('');
+}
+const subHTML = renderKeywords(HERO.sub);
+
+const { line1, line2Pre, italic, line2Post } = HERO.headline;
 ---
+<!--
+  §1 HERO. Orange background. Prototype typography.
+  Five mechanically distinct entrance motions wired in motion/hero.ts:
+    1. .hero-brand        letter-spacing expansion (tight to wide) + fade
+    2. .line[data-tw="1"] GSAP TextPlugin typewriter, blinking caret
+    3. .line[data-tw="2"] GSAP TextPlugin typewriter, caret continues, italic restored on complete
+    4. .hero-sub          clip-path mask wipe (left to right curtain reveal)
+    5. .hero-cta-wrap     smooth slide-up + scale settle (expo.out)
+  Italic emphasis on line 2 is preserved because motion/hero.ts stashes innerHTML
+  before the typewriter runs and re-instates it on complete.
+-->
 <section
   id="hero"
   data-section="hero"
-  class="relative min-h-screen bg-c8-orange flex flex-col items-center justify-center overflow-hidden noise-overlay"
+  data-bg="orange"
+  class="hero relative min-h-screen overflow-hidden noise-overlay"
 >
-  <!-- Ghost logo (centered behind headline) -->
-  <div class="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
-    <Logo class="hero-logo-ghost" opacity={0.08} style="width: 80vw; height: auto;" />
+  <!-- Ghost logo centered behind the headline (prototype hallmark) -->
+  <div class="hero-logo-ghost" aria-hidden="true">
+    <Logo style="width: auto; height: min(96vh, 1100px); max-width: none;" opacity={0.08} />
   </div>
 
-  <!-- Foreground logo (top-left) -->
-  <div class="absolute top-6 left-6 z-10">
-    <Logo class="hero-logo" style="width: 60px; height: auto;" />
-  </div>
+  <div class="hero-grid mx-auto max-w-[1280px] px-6 py-24 sm:py-28 md:py-32 md:grid md:grid-cols-[1.1fr_1fr] md:gap-16 md:items-center">
+    <!-- LEFT: brand + headline + sub + CTA -->
+    <div class="hero-text relative z-10 text-center md:text-left">
+      <p class="hero-brand font-body font-medium tracking-[0.18em] text-[12px] uppercase mb-6">
+        {HERO.brand}
+      </p>
 
-  <!-- Content -->
-  <div class="relative z-10 text-center px-4 max-w-[90vw]">
-    <p class="hero-eyebrow font-body font-medium text-c8-white tracking-[0.12em] text-[12px] mb-6 uppercase">
-      {HERO.eyebrow}
-    </p>
+      <h1 class="hero-headline h-display">
+        <!-- SSR renders the final content for SEO / accessibility. JS will stash it,
+             empty the line, then typewrite. Hidden via opacity:0 until JS runs. -->
+        <span class="line" data-tw="1">{line1}</span>
+        <span class="line" data-tw="2">
+          {line2Pre && <Fragment set:html={line2Pre + ' '} />}
+          <em>{italic}</em>{line2Post}
+        </span>
+      </h1>
 
-    <h1 class="h-display hero-headline" style="font-size: var(--text-h1)">
-      <span class="line">{HERO.headline.line1}</span>
-      <span class="line">{HERO.headline.line2} <em>{HERO.headline.italicWord}</em>.</span>
-    </h1>
+      <p
+        class="hero-sub mt-7 max-w-[44ch] mx-auto md:mx-0"
+        set:html={subHTML}
+      />
 
-    <div class="mt-10">
-      <a
-        href={HERO.cta.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="hero-cta inline-flex items-center gap-3 bg-c8-black text-c8-white font-body font-bold rounded-full px-8 py-[18px] text-[16px] tracking-[0.02em] transition-all duration-200 hover:-translate-y-0.5 hover:bg-c8-orange-deep focus-visible:ring-2 focus-visible:ring-c8-white"
-        aria-label={`${HERO.cta.label} — DM @chrono8media on Instagram`}
-      >
-        {HERO.cta.label} →
-      </a>
+      <div class="hero-cta-wrap mt-10 flex justify-center md:justify-start">
+        <a
+          href={HERO.cta.targetId}
+          class="hero-cta btn"
+          aria-label={`${HERO.cta.label}. Jump to contact form.`}
+          data-scroll-target={HERO.cta.targetId}
+          data-magnetic
+        >
+          {HERO.cta.label}
+          <span aria-hidden="true" class="arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- RIGHT: floating 3D logo -->
+    <div class="hero-logo-wrap relative mt-14 md:mt-0 flex items-center justify-center">
+      <Logo
+        class="hero-logo-3d relative z-10 select-none pointer-events-auto"
+        style="width: clamp(180px, 50vw, 360px); height: auto; will-change: transform;"
+      />
     </div>
   </div>
 </section>
+
+<style>
+  /* Orange background hero (matches prototype) */
+  .hero {
+    background: var(--color-c8-orange);
+    color: var(--color-c8-white);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* Ghost logo behind headline */
+  .hero-logo-ghost {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0; /* motion/hero.ts fades to 0.08 */
+  }
+
+  /* Brand eyebrow */
+  .hero-brand {
+    color: color-mix(in oklab, var(--color-c8-white) 90%, transparent);
+    /* Initial state for letter-spacing expansion motion */
+    opacity: 0;
+    letter-spacing: 0.06em;
+    will-change: letter-spacing, opacity;
+  }
+
+  /* Prototype headline typography */
+  .hero-headline {
+    font-family: var(--font-display);
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 0.92;
+    letter-spacing: -0.025em;
+    font-stretch: condensed;
+    word-spacing: 0.04em;
+    --fit-scale: 1;
+    font-size: calc(clamp(1.7rem, 6.5vw, 7rem) * var(--fit-scale));
+    color: var(--color-c8-white);
+    margin: 0;
+  }
+  .hero-headline > .line {
+    display: block;
+    white-space: nowrap;
+    min-height: 0.92em; /* preserves layout while line is empty pre-typewriter */
+    opacity: 0;          /* motion/hero.ts sets to 1 once it has stashed HTML */
+  }
+  .hero-headline em {
+    font-style: italic;
+    font-weight: 800;
+    color: var(--color-c8-white);
+  }
+
+  /* Typewriter caret */
+  .tw-caret {
+    display: inline-block;
+    width: 0.08em;
+    height: 0.78em;
+    background: currentColor;
+    margin-left: 0.06em;
+    vertical-align: -0.05em;
+    animation: tw-blink 0.85s steps(1) infinite;
+  }
+  @keyframes tw-blink { 50% { opacity: 0; } }
+
+  /* Sub paragraph */
+  .hero-sub {
+    font-family: var(--font-body);
+    font-size: clamp(15px, 1.4vw, 17px);
+    line-height: 1.55;
+    color: color-mix(in oklab, var(--color-c8-white) 92%, transparent);
+    /* Initial state for clip-path mask wipe */
+    clip-path: inset(0 100% 0 0);
+    will-change: clip-path;
+  }
+  .hero-sub .hero-key {
+    color: var(--color-c8-black);
+    font-weight: 500;
+  }
+
+  /* CTA: black pill on orange. Initial state for smooth slide-up. */
+  .hero-cta-wrap {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    will-change: transform, opacity;
+  }
+  .hero-cta.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--color-c8-black);
+    color: var(--color-c8-white);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    padding: 16px 28px;
+    border-radius: 999px;
+    transition: background 0.2s ease;
+    will-change: transform;
+  }
+  .hero-cta.btn:hover { background: #1a1a1a; }
+  .hero-cta.btn:focus-visible {
+    outline: 2px solid var(--color-c8-white);
+    outline-offset: 4px;
+  }
+  .hero-cta .arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+  .hero-cta:hover .arrow { transform: translateX(3px); }
+
+  /* Reduced motion: skip all entrance animations, show final state */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-brand,
+    .hero-headline > .line,
+    .hero-cta-wrap { opacity: 1 !important; letter-spacing: inherit; transform: none; }
+    .hero-sub { clip-path: none; }
+    .hero-logo-ghost { opacity: 0.08; }
+    .tw-caret { display: none; }
+  }
+</style>
+
+<script>
+  /*
+   * Hero local interactions only. Entrance choreography lives in motion/hero.ts.
+   * fitLine for the 2-line headline is owned by motion/fit.ts.
+   */
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isTouch = matchMedia('(pointer: coarse)').matches;
+
+  // 3D logo float + cursor-tilt
+  const logo = document.querySelector<HTMLImageElement>('.hero-logo-3d');
+  if (logo && !reduced) {
+    let t = 0;
+    let raf = 0;
+    function tick() {
+      t += 0.016;
+      const ry = Math.sin(t * 0.6) * 6;
+      const rx = Math.cos(t * 0.4) * 3;
+      const ty = Math.sin(t * 0.8) * 6;
+      if (logo) logo.style.transform = `perspective(800px) translateY(${ty}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+      raf = requestAnimationFrame(tick);
+    }
+    tick();
+    if (!isTouch && logo) {
+      const wrap = logo.parentElement!;
+      wrap.addEventListener('mousemove', (e) => {
+        const r = wrap.getBoundingClientRect();
+        const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+        const dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+        cancelAnimationFrame(raf);
+        logo.style.transform = `perspective(800px) rotateX(${-dy * 14}deg) rotateY(${dx * 18}deg) translateZ(20px)`;
+      });
+      wrap.addEventListener('mouseleave', () => { tick(); });
+    }
+  }
+
+  // CTA smooth-scroll via Lenis (falls back to native)
+  document.querySelectorAll<HTMLAnchorElement>('[data-scroll-target]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const target = link.getAttribute('data-scroll-target');
+      if (!target) return;
+      const el = document.querySelector(target);
+      if (!el) return;
+      e.preventDefault();
+      const lenis = (window as any).__c8Lenis;
+      if (lenis && typeof lenis.scrollTo === 'function') {
+        lenis.scrollTo(el, { offset: -16 });
+      } else {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>

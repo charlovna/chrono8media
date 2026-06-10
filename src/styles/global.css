@@ -1,3 +1,6 @@
+/* Dev fallback - swap to licensed WOFF2 from pangrampangram.com before launch */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap');
+
 @import "tailwindcss";
 
 @theme {
@@ -17,9 +20,6 @@
   --text-body:    clamp(1rem, 1.2vw, 1.125rem);
   --text-eyebrow: 0.75rem;
 }
-
-/* Dev fallback — swap to licensed WOFF2 from pangrampangram.com before launch */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap');
 
 /* PP Neue Machina (license required) */
 @font-face {
@@ -96,19 +96,28 @@ body {
   font-family: var(--font-display);
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   line-height: 0.95;
-  text-wrap: balance;
 }
 
+/* STRICT 2-LINE POLICY (CLAUDE.md): every .line child is one row, never wraps.
+   fitLine() in motion/fit.ts steps font-size down until both lines fit. */
 .h-display > .line {
   display: block;
   white-space: nowrap;
+  min-height: 0.9em;  /* holds layout while typewriter is running */
 }
 
 .h-display em {
   font-style: italic;
   font-weight: 800;
+}
+
+/* Shared section heading: mobile-first size clamp + CSS var for fitLine scaling */
+.section-heading {
+  --fit-scale: 1;
+  font-size: calc(clamp(1.8rem, 7vw, 5rem) * var(--fit-scale));
+  line-height: 0.95;
 }
 
 /* Scroll progress bar */
@@ -126,19 +135,64 @@ body {
 
 /* Custom cursor (pointer devices only) */
 #cursor {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   background: var(--color-c8-white);
   border-radius: 50%;
   position: fixed;
+  top: 0;
+  left: 0;
   pointer-events: none;
   mix-blend-mode: difference;
   z-index: 9999;
-  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: width 0.18s ease, height 0.18s ease, background-color 0.18s ease, opacity 0.18s ease;
+}
+#cursor.is-hot {
+  width: 28px;
+  height: 28px;
+  background: var(--color-c8-orange);
 }
 
 @media (pointer: coarse) {
   #cursor { display: none; }
+}
+
+/* ── Char-swap CTAs (Anthropic-style hover) ─────────────────────
+   Each char is a stacked top/bottom pair. On hover the inner column
+   slides up by 50%, revealing the bottom char. Staggered via --d. */
+.btn-label {
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  vertical-align: middle;
+}
+.char-swap {
+  display: inline-block;
+  overflow: hidden;
+  height: 1em;
+  line-height: 1em;
+}
+.char-swap-inner {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.42s cubic-bezier(.76, 0, .24, 1);
+  transition-delay: var(--d, 0ms);
+  will-change: transform;
+}
+.char-swap-inner > span {
+  display: block;
+  height: 1em;
+  line-height: 1em;
+}
+/* Hover triggers the swap on parent button/anchor */
+:is(.hero-cta, .cta-submit, [data-charswap], a.btn):hover .char-swap-inner,
+:is(.hero-cta, .cta-submit, [data-charswap], a.btn):focus-visible .char-swap-inner {
+  transform: translateY(-50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .char-swap-inner { transition: none; }
 }
 
 /* Focus */
@@ -155,4 +209,108 @@ body {
   background-image: url('/noise.png');
   opacity: 0.04;
   pointer-events: none;
+}
+
+/* ── Shared visual primitives ─────────────────────────────────── */
+/* Orange keyword span — wrap any phrase in <span class="orange-key">…</span> */
+.orange-key {
+  color: var(--color-c8-orange);
+  font-style: normal;
+}
+
+/* Black card with a soft orange edge-glow (mobile-first).
+   Replaces the magenta glow seen in the reference screenshot. */
+.card-glow {
+  position: relative;
+  background: color-mix(in oklab, var(--color-c8-black) 92%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-c8-orange) 22%, transparent);
+  border-radius: 24px;
+  box-shadow:
+    0 0 0 1px rgba(255, 90, 31, 0.04),
+    0 24px 60px -30px rgba(255, 90, 31, 0.35),
+    0 1px 0 rgba(255, 255, 255, 0.02) inset;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.card-glow:hover,
+.card-glow:focus-within {
+  border-color: color-mix(in oklab, var(--color-c8-orange) 55%, transparent);
+  box-shadow:
+    0 0 0 1px rgba(255, 90, 31, 0.10),
+    0 28px 80px -28px rgba(255, 90, 31, 0.55),
+    0 1px 0 rgba(255, 255, 255, 0.03) inset;
+}
+
+/* Vertical timeline rail — used by Process */
+.timeline-spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    color-mix(in oklab, var(--color-c8-orange) 70%, transparent) 8%,
+    color-mix(in oklab, var(--color-c8-orange) 70%, transparent) 92%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+.timeline-spine::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--color-c8-orange) 0%,
+    var(--color-c8-orange) var(--spine-progress, 0%),
+    transparent var(--spine-progress, 0%)
+  );
+  filter: blur(2px);
+  opacity: 0.8;
+}
+
+/* Form fields — borderless dark surfaces with orange focus */
+.field-input,
+.field-textarea {
+  width: 100%;
+  padding: 14px 16px;
+  background: color-mix(in oklab, var(--color-c8-black) 80%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-c8-white) 12%, transparent);
+  border-radius: 12px;
+  color: var(--color-c8-white);
+  font: inherit;
+  font-family: var(--font-body);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.field-input::placeholder,
+.field-textarea::placeholder {
+  color: color-mix(in oklab, var(--color-c8-white) 38%, transparent);
+}
+.field-input:focus,
+.field-textarea:focus {
+  outline: none;
+  border-color: var(--color-c8-orange);
+  background: color-mix(in oklab, var(--color-c8-black) 92%, transparent);
+}
+.field-textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+.field-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-c8-white) 70%, transparent);
+  margin-bottom: 8px;
+}
+
+/* Honor reduced motion globally for any utility transitions */
+@media (prefers-reduced-motion: reduce) {
+  .card-glow,
+  .field-input,
+  .field-textarea {
+    transition: none;
+  }
 }

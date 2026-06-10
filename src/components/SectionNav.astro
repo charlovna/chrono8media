@@ -1,0 +1,216 @@
+---
+/*
+ * SectionNav — sticky top tab bar, always visible after hero, all viewports.
+ * Horizontal scrollable on mobile so all tabs stay accessible.
+ * Lenis smooth-scroll on click. Active tab tracks scroll position.
+ * Color-aware: inverts palette when over an orange-bg section.
+ */
+const SECTIONS = [
+  { target: '#hero',           label: 'Home' },
+  { target: '#expertise',      label: 'Services' },
+  { target: '#sectionPillars', label: 'Pillars' },
+  { target: '#testimonials',   label: 'Brands' },
+  { target: '#process',        label: 'Process' },
+  { target: '#why-us',         label: 'Why Us' },
+  { target: '#complete-cta',   label: 'Contact' },
+];
+---
+<nav class="snav" id="sectionNav" aria-label="Section navigation">
+  <div class="snav__track">
+    {SECTIONS.map((s, i) => (
+      <button
+        type="button"
+        class="snav__tab"
+        data-target={s.target}
+        data-index={i}
+        aria-label={`Go to ${s.label}`}
+      >
+        {s.label}
+        <span class="snav__pip" aria-hidden="true" />
+      </button>
+    ))}
+  </div>
+</nav>
+
+<style>
+  /* ── Bar shell ─────────────────────────────────────────────── */
+  .snav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 80;
+    /* starts hidden, slides in after hero */
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(.65,0,.35,1), opacity 0.4s ease,
+                background 0.3s ease, border-color 0.3s ease;
+    background: color-mix(in oklab, var(--color-c8-black) 80%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid color-mix(in oklab, var(--color-c8-white) 10%, transparent);
+  }
+  .snav.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* Orange-bg sections: invert the bar to keep contrast */
+  .snav[data-over="orange"] {
+    background: color-mix(in oklab, var(--color-c8-orange) 88%, transparent);
+    border-color: color-mix(in oklab, var(--color-c8-black) 18%, transparent);
+  }
+
+  /* ── Scrollable track ──────────────────────────────────────── */
+  .snav__track {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    /* centre tabs on desktop, left-align + scroll on mobile */
+    justify-content: flex-start;
+    padding: 0 12px;
+    max-width: 1280px;
+    margin-inline: auto;
+  }
+  .snav__track::-webkit-scrollbar { display: none; }
+
+  @media (min-width: 768px) {
+    .snav__track { justify-content: center; padding: 0 24px; }
+  }
+
+  /* ── Individual tab ────────────────────────────────────────── */
+  .snav__tab {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 14px 16px 12px;
+    min-height: 52px;          /* tap target >=44px per mobile-first rule */
+    min-width: 56px;
+    flex-shrink: 0;
+    border: 0;
+    background: none;
+    color: color-mix(in oklab, var(--color-c8-white) 55%, transparent);
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+  }
+  @media (min-width: 768px) {
+    .snav__tab { padding: 16px 20px 14px; font-size: 11.5px; }
+  }
+
+  .snav__tab:hover { color: var(--color-c8-white); }
+  .snav__tab:focus-visible {
+    outline: 2px solid var(--color-c8-orange);
+    outline-offset: -2px;
+  }
+  .snav__tab.is-active {
+    color: var(--color-c8-white);
+  }
+
+  /* ── Active pip underline ──────────────────────────────────── */
+  .snav__pip {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    translate: -50% 0;
+    width: 0;
+    height: 2px;
+    background: var(--color-c8-orange);
+    border-radius: 2px;
+    transition: width 0.3s cubic-bezier(.65,0,.35,1);
+  }
+  .snav__tab.is-active .snav__pip { width: 60%; }
+  .snav__tab:hover .snav__pip    { width: 30%; }
+
+  /* Orange-bg inversion: swap text/pip colors */
+  .snav[data-over="orange"] .snav__tab {
+    color: color-mix(in oklab, var(--color-c8-black) 55%, transparent);
+  }
+  .snav[data-over="orange"] .snav__tab:hover,
+  .snav[data-over="orange"] .snav__tab.is-active {
+    color: var(--color-c8-black);
+  }
+  .snav[data-over="orange"] .snav__pip {
+    background: var(--color-c8-black);
+  }
+
+  /* Adjust body so the sticky bar never overlaps section headings */
+  :global(html) { scroll-padding-top: 56px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .snav { transition: none; }
+    .snav__pip, .snav__tab { transition: none; }
+  }
+</style>
+
+<script>
+  const nav   = document.getElementById('sectionNav')!;
+  const track = nav.querySelector<HTMLElement>('.snav__track')!;
+  if (!nav || !track) throw new Error('SectionNav mount failed');
+
+  const tabs = nav.querySelectorAll<HTMLButtonElement>('.snav__tab');
+
+  const targets = [...tabs].map((tab) => ({
+    tab,
+    el: document.querySelector<HTMLElement>(tab.dataset.target ?? ''),
+  })).filter((t): t is { tab: HTMLButtonElement; el: HTMLElement } => !!t.el);
+
+  /* ── Click: smooth-scroll via Lenis, fallback native ──────── */
+  targets.forEach(({ tab, el }) => {
+    tab.addEventListener('click', () => {
+      const lenis = (window as any).__c8Lenis;
+      const offset = -(nav.getBoundingClientRect().height + 8);
+      if (lenis?.scrollTo) {
+        lenis.scrollTo(el, { offset, duration: 1.1 });
+      } else {
+        const top = el.getBoundingClientRect().top + window.scrollY + offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    });
+  });
+
+  /* ── Scroll tracking: active tab + bar visibility ─────────── */
+  function update() {
+    const navH = nav.getBoundingClientRect().height;
+    const sy   = window.scrollY + navH + window.innerHeight * 0.15;
+    let activeIdx = 0;
+    targets.forEach((t, i) => { if (t.el.offsetTop <= sy) activeIdx = i; });
+
+    targets.forEach((t, i) => t.tab.classList.toggle('is-active', i === activeIdx));
+
+    // Slide bar in once user scrolls past 30% of first viewport
+    nav.classList.toggle('is-visible', window.scrollY > window.innerHeight * 0.3);
+
+    // Color-aware: detect bg of active section
+    const over = targets[activeIdx]?.el.dataset.bg === 'orange' ? 'orange' : 'black';
+    nav.setAttribute('data-over', over);
+
+    // Scroll the active tab into view inside the horizontal track (mobile)
+    const activeTab = targets[activeIdx]?.tab;
+    if (activeTab && track) {
+      const tabLeft  = activeTab.offsetLeft;
+      const tabRight = tabLeft + activeTab.offsetWidth;
+      const trackW   = track.offsetWidth;
+      const scrollL  = track.scrollLeft;
+      if (tabLeft < scrollL + 16) {
+        track.scrollTo({ left: tabLeft - 16, behavior: 'smooth' });
+      } else if (tabRight > scrollL + trackW - 16) {
+        track.scrollTo({ left: tabRight - trackW + 16, behavior: 'smooth' });
+      }
+    }
+  }
+
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+</script>

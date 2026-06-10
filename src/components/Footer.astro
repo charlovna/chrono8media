@@ -2,19 +2,51 @@
 import Logo from './Logo.astro';
 import { FOOTER } from '../data/content';
 ---
-<footer class="bg-c8-black border-t border-c8-white/10 px-6 py-5 flex items-center justify-between">
-  <Logo style="width: 32px; height: auto;" />
+<footer
+  class="site-footer relative bg-c8-black text-c8-white border-t border-c8-white/10 pt-16 sm:pt-20 md:pt-24 pb-8"
+  aria-label="Site footer"
+>
+  <div class="mx-auto max-w-[1200px] px-6">
+    <!-- Top: brand + columns. Mobile-first single col, 4-col from md. -->
+    <div class="footer-grid grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr_1fr] gap-12 md:gap-10 mb-14">
+      <!-- LEFT: brand block -->
+      <div class="brand-col flex flex-col gap-5 max-w-[360px]">
+        <Logo style="width: 40px; height: auto;" />
+        <p class="font-display font-bold uppercase tracking-tight text-c8-white text-[20px] md:text-[22px] leading-tight">
+          {FOOTER.brand}
+        </p>
+        <p class="font-body text-c8-white/70 text-[15px] leading-relaxed">
+          {FOOTER.description}
+        </p>
+      </div>
 
-  <p class="font-body text-c8-white/50 text-[13px]">
-    © {FOOTER.year} {FOOTER.brand}
-  </p>
+      <!-- Link columns -->
+      {FOOTER.columns.map((col) => (
+        <nav class="footer-col flex flex-col gap-4" aria-label={col.title}>
+          <p class="font-body font-bold tracking-[0.16em] text-[12px] uppercase text-c8-orange">
+            {col.title}
+          </p>
+          <ul class="flex flex-col gap-3 list-none p-0 m-0">
+            {col.links.map((l) => (
+              <li>
+                <a
+                  href={l.href}
+                  class="font-body text-c8-white/80 text-[14px] hover:text-c8-orange transition-colors duration-200"
+                >
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))}
+    </div>
 
-  <a
-    href={FOOTER.href}
-    target="_blank"
-    rel="noopener noreferrer"
-    class="font-body font-medium text-c8-white/70 text-[14px] hover:text-c8-orange transition-colors duration-200"
-  >
-    {FOOTER.handle} →
-  </a>
+    <!-- Divider + centered copyright -->
+    <div class="footer-bottom pt-8 border-t border-c8-white/10">
+      <p class="font-body text-center text-c8-white/50 text-[13px]">
+        © {FOOTER.year} {FOOTER.brand}. All rights reserved.
+      </p>
+    </div>
+  </div>
 </footer>
