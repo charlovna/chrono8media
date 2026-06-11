@@ -340,19 +340,6 @@ const { line1, line2Pre, italic, line2Post } = HERO.headline;
     }
     tick();
 
-    if (!isTouch && logo) {
-      const wrap = logo.closest('.hero-logo-wrap') as HTMLElement;
-      if (wrap) {
-        wrap.addEventListener('mousemove', (e) => {
-          const r = wrap.getBoundingClientRect();
-          const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
-          const dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
-          cancelAnimationFrame(raf);
-          logo.style.transform = `perspective(800px) rotateX(${-dy * 14}deg) rotateY(${dx * 18}deg) translateZ(20px)`;
-        });
-        wrap.addEventListener('mouseleave', () => { tick(); });
-      }
-    }
   }
 
   // CTA smooth-scroll via Lenis (falls back to native)
