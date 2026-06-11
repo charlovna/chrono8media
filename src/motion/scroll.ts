@@ -11,7 +11,7 @@ export function initScrollAnimations() {
 }
 
 /**
- * §4 Pillars — pinned crossfade + 3D logo watermark scrub.
+ * §4 Pillars - pinned crossfade + 3D logo watermark scrub.
  * Ported faithfully from prototype Chrono8 Media.html lines 1388-1450.
  */
 function initPillars(reduced: boolean) {
@@ -30,21 +30,27 @@ function initPillars(reduced: boolean) {
   gsap.set(cards, { opacity: 0 });
   gsap.set(cards[0], { opacity: 1 });
 
+  // CROSSFADE_START: fraction of each card's scroll window where fade begins.
+  // 0.5 gives a 50% overlap window - much smoother than 0.7 (30%).
+  const CROSSFADE_START = 0.5;
+
   ScrollTrigger.create({
     trigger: section,
     start: 'top top',
     end: `+=${count * 100}%`,
     pin: '#pillarsPin',
-    scrub: 0.6,
+    anticipatePin: 1,
+    scrub: 1.2,
     onUpdate: (self) => {
       const p = self.progress * count;
       const idx = Math.min(count - 1, Math.floor(p));
       const localT = p - idx;
+      const fadeWindow = 1 - CROSSFADE_START;
 
       cards.forEach((c, i) => {
         let op = 0;
-        if (i === idx) op = 1 - Math.max(0, localT - 0.7) / 0.3;
-        else if (i === idx + 1) op = Math.max(0, (localT - 0.7) / 0.3);
+        if (i === idx) op = 1 - Math.max(0, (localT - CROSSFADE_START) / fadeWindow);
+        else if (i === idx + 1) op = Math.max(0, (localT - CROSSFADE_START) / fadeWindow);
         if (i === idx && idx === count - 1) op = 1;
         c.style.opacity = String(op);
       });

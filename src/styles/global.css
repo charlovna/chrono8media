@@ -212,7 +212,7 @@ body {
 }
 
 /* ── Shared visual primitives ─────────────────────────────────── */
-/* Orange keyword span — wrap any phrase in <span class="orange-key">…</span> */
+/* Orange keyword span - wrap any phrase in <span class="orange-key">...</span> */
 .orange-key {
   color: var(--color-c8-orange);
   font-style: normal;
@@ -240,7 +240,7 @@ body {
     0 1px 0 rgba(255, 255, 255, 0.03) inset;
 }
 
-/* Vertical timeline rail — used by Process */
+/* Vertical timeline rail - used by Process */
 .timeline-spine {
   position: absolute;
   top: 0;
@@ -269,7 +269,7 @@ body {
   opacity: 0.8;
 }
 
-/* Form fields — borderless dark surfaces with orange focus */
+/* Form fields - borderless dark surfaces with orange focus */
 .field-input,
 .field-textarea {
   width: 100%;

@@ -1,5 +1,5 @@
 /**
- * fitLine — strict 2-line safety net (per CLAUDE.md "Headline System").
+ * fitLine - strict 2-line safety net (per CLAUDE.md "Headline System").
  * Walks every element with `data-fit` (or every `.h-display` that has
  * `--fit-scale` set), measures each `.line` child against its container,
  * and steps font-size down 4% per pass until both lines fit without wrap.
@@ -40,7 +40,7 @@ function fitOne(h: HTMLElement) {
   }
 }
 
-function fitAll() {
+export function fitAll() {
   document.querySelectorAll<HTMLElement>(TARGET_SELECTOR).forEach(fitOne);
 }
 
@@ -51,5 +51,9 @@ export function initFit() {
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(fitAll);
   });
+  // fonts.ready can resolve before Google Fonts (CSS @import) fully loads.
+  // window.load fires after all resources are fetched, catching the fallback font.
   if ('fonts' in document) (document as any).fonts.ready.then(fitAll);
+  window.addEventListener('load', fitAll, { once: true });
 }
+

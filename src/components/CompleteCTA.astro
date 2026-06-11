@@ -164,7 +164,7 @@ const SOCIAL_SVG: Record<string, string> = {
         return;
       }
 
-      // Stub success — replace with real Pages Function endpoint later
+      // Stub success - replace with real Pages Function endpoint later
       errEl?.classList.add('hidden');
       form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea').forEach((el) => el.setAttribute('disabled', 'true'));
       submit?.setAttribute('disabled', 'true');

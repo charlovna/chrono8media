@@ -1,5 +1,6 @@
 import gsap from 'gsap';
 import { TextPlugin } from 'gsap/TextPlugin';
+import { fitAll } from './fit';
 
 gsap.registerPlugin(TextPlugin);
 
@@ -100,6 +101,8 @@ export function initHero() {
       lineData[1].line.innerHTML = lineData[1].finalHTML;
       // Fade caret out a beat after typing completes
       gsap.delayedCall(0.5, () => caret.remove());
+      // Re-measure now that both lines have final content (font may have loaded)
+      fitAll();
     },
   }, '+=0.18');
 

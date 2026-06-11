@@ -2,10 +2,10 @@
 import { PILLARS } from '../data/content';
 ---
 <!--
-  §4 PILLARS — pinned crossfade (4 viewports of scroll inside one sticky viewport).
+  §4 PILLARS - pinned crossfade (4 viewports of scroll inside one sticky viewport).
   Ported from prototype Chrono8 Media.html §4. The outer .pillars is 400vh; the
   inner .pillars-pin sticks at top and holds all 4 cards absolutely stacked on
-  top of each other. scroll.ts → initPillars() drives opacity crossfade per
+  top of each other. scroll.ts initPillars() drives opacity crossfade per
   card and a 3D logo watermark scrub across the full range.
 -->
 <section
@@ -38,21 +38,19 @@ import { PILLARS } from '../data/content';
 </section>
 
 <style>
-  /* Pin structure — count × 100vh tall so the pinned section gets `count`
+  /* Pin structure - count x 100vh tall so the pinned section gets `count`
      viewports of scroll progress (initPillars sets end: +=400%). */
   .pillars {
     position: relative;
     height: 400vh;
   }
   .pillars-pin {
-    position: sticky;
-    top: 0;
     height: 100vh;
     width: 100%;
     overflow: hidden;
   }
 
-  /* Cards absolutely stacked — opacity controlled by initPillars in scroll.ts */
+  /* Cards absolutely stacked - opacity controlled by initPillars in scroll.ts */
   .pillar-card {
     position: absolute;
     inset: 0;
@@ -73,7 +71,7 @@ import { PILLARS } from '../data/content';
     color: var(--color-c8-white);
   }
 
-  /* Card index (top corner) — alternates left/right across pillars */
+  /* Card index (top corner) - alternates left/right across pillars */
   .pillar-num {
     position: absolute;
     top: 32px;
@@ -93,7 +91,7 @@ import { PILLARS } from '../data/content';
     text-align: right;
   }
 
-  /* Card body — text content above the watermark.
+  /* Card body - text content above the watermark.
      initPillars also writes translateY/scale here per scroll progress. */
   .pillar-body {
     position: relative;
@@ -125,7 +123,7 @@ import { PILLARS } from '../data/content';
     opacity: 0.8;
   }
 
-  /* 3D watermark — full-viewport logo behind the body content.
+  /* 3D watermark - full-viewport logo behind the body content.
      The inner <div> is the transform target driven by initPillars. */
   .pillar-watermark {
     position: absolute;
@@ -153,11 +151,11 @@ import { PILLARS } from '../data/content';
   .pillar-card[data-bg="orange"] .pillar-watermark > div { opacity: 0.16; }
   .pillar-card[data-bg="black"]  .pillar-watermark > div { opacity: 0.22; }
 
-  /* Reduced motion fallback — initPillars sets these styles inline too,
+  /* Reduced motion fallback - initPillars sets these styles inline too,
      but having a CSS guard prevents flash before JS boots. */
   @media (prefers-reduced-motion: reduce) {
     .pillars { height: auto; }
-    .pillars-pin { position: static; height: auto; overflow: visible; }
+    .pillars-pin { height: auto; overflow: visible; }
     .pillar-card {
       position: relative;
       inset: auto;

@@ -1,5 +1,5 @@
 /**
- * Vanilla ScrambleText — same API shape as GSAP ScrambleTextPlugin but with
+ * Vanilla ScrambleText - same API shape as GSAP ScrambleTextPlugin but with
  * no Club GreenSock dependency. Preserves inner HTML (incl. `<em>`) by
  * stashing innerHTML, scrambling textContent, and restoring on complete.
  *
@@ -10,8 +10,8 @@ type ScrambleOpts = {
   duration?: number;       // seconds
   delay?: number;          // seconds
   chars?: 'upperCase' | 'lowerCase' | 'mixed';
-  speed?: number;          // 0..1 — visual churn rate (higher = busier)
-  revealDelay?: number;    // 0..1 — fraction of duration spent scrambling before reveal starts
+  speed?: number;          // 0..1 - visual churn rate (higher = busier)
+  revealDelay?: number;    // 0..1 - fraction of duration spent scrambling before reveal starts
 };
 
 const POOLS = {
@@ -55,7 +55,7 @@ export function scrambleIn(el: HTMLElement | null, opts: ScrambleOpts = {}) {
         const ch = final[i];
         if (i < revealCount) out += ch;
         else if (ch === ' ' || ch === ' ') out += ch;
-        else if (/[.,!?:;'"\-—]/.test(ch)) out += ch;
+        else if (/[.,!?:;'"\-]/.test(ch)) out += ch;
         else out += pool[Math.floor(Math.random() * pool.length)];
       }
       el.textContent = out;

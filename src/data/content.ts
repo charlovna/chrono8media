@@ -1,5 +1,5 @@
 // ================================================================
-//  CHRONO8 MEDIA — PAGE CONTENT
+//  CHRONO8 MEDIA - PAGE CONTENT
 //  Edit this file to change any visible text on the site.
 //  Each export below maps directly to one section of the page.
 // ================================================================
@@ -7,7 +7,7 @@
 
 // ── SEO & browser tab ───────────────────────────────────────────
 export const META = {
-  title:       'Chrono8 Media — Your Partner in Digital Marketing',
+  title:       'Chrono8 Media: Your Partner in Digital Marketing',
   description: 'We help brands grow through strategic content, high-performing creative, and seamless social media systems designed for attention, engagement, and results.',
   url:         'https://chrono8media.com',
   ogImage:     '/og-image.png',
@@ -37,7 +37,7 @@ export const HERO = {
 };
 
 
-// ── §2 · EXPERTISE — "What We'll Do For You" ────────────────────
+// ── §2 · EXPERTISE - "What We'll Do For You" ────────────────────
 // Each row expands on click/tap to reveal sample works.
 export const EXPERTISE = {
   eyebrow: 'What We Do',
@@ -47,7 +47,7 @@ export const EXPERTISE = {
     {
       title: 'Video Editing',
       summary: 'Short-form reels, long-form cuts, podcast post-production, motion graphics.',
-      works: ['Reel edits — sub-60s', 'Long-form YouTube cuts', 'Podcast post-production', 'Motion graphics overlays'],
+      works: ['Reel edits: sub-60s', 'Long-form YouTube cuts', 'Podcast post-production', 'Motion graphics overlays'],
     },
     {
       title: 'Graphic Design',
@@ -78,7 +78,7 @@ export const EXPERTISE = {
 };
 
 
-// ── §3 · PILLARS (unchanged — signature 4-card pinned scroll) ───
+// ── §3 · PILLARS (unchanged - signature 4-card pinned scroll) ───
 export const PILLARS = [
   {
     number:  '01',
@@ -91,7 +91,7 @@ export const PILLARS = [
     number:  '02',
     name:    'DESIGN',
     tagline: 'That builds authority.',
-    body:    "Visuals that don't just look good — they make your brand impossible to ignore.",
+    body:    "Visuals that don't just look good. They make your brand impossible to ignore.",
     bg:      'black' as const,
   },
   {
@@ -111,7 +111,7 @@ export const PILLARS = [
 ];
 
 
-// ── §4 · TESTIMONIALS — Brand-logo grid, click-to-reveal quote ──
+// ── §4 · TESTIMONIALS - Brand-logo grid, click-to-reveal quote ──
 // brandLogo: place file in /public/images/brand-logos/ then reference here.
 // brandName: shown as text fallback if image fails / for screen readers.
 export const TESTIMONIALS = {
@@ -150,7 +150,7 @@ export const TESTIMONIALS = {
 };
 
 
-// ── §5 · PROCESS — Vertical 4-step timeline ─────────────────────
+// ── §5 · PROCESS - Vertical 4-step timeline ─────────────────────
 export const PROCESS = {
   eyebrow: 'How It Works',
   heading: { line1: 'HOW OUR', line2: 'SYSTEM WORKS.' },
@@ -179,7 +179,7 @@ export const PROCESS = {
 };
 
 
-// ── §6 · WHY US — 3 cards with vector icons ─────────────────────
+// ── §6 · WHY US - 3 cards with vector icons ─────────────────────
 // icon: name of an inline SVG component rendered in WhyUs.astro.
 //   'network'  → connected nodes
 //   'infinity' → infinity loop
@@ -194,7 +194,7 @@ export const WHY_US = {
     {
       icon:  'network',
       title: 'We Build Systems, Not Random Content',
-      body:  'We create structured content strategies designed to keep your brand consistent, recognizable, and growth-focused — not just active.',
+      body:  'We create structured content strategies designed to keep your brand consistent, recognizable, and growth-focused, not just active.',
     },
     {
       icon:  'infinity',
@@ -210,18 +210,18 @@ export const WHY_US = {
 };
 
 
-// ── §7 · COMPLETE CTA — split contact form + info ───────────────
+// ── §7 · COMPLETE CTA - split contact form + info ───────────────
 export const COMPLETE_CTA = {
   heading: { line1: 'READY TO SCALE WITH', line2: 'A REAL CONTENT SYSTEM.' },
   sub:     "We'll help you create strategic content designed to grow your brand and drive results.",
   form: {
     submitLabel: 'Send Message',
-    successText: "Thanks — we'll reply within 24 hours.",
+    successText: "Thanks. We'll reply within 24 hours.",
     fields: {
       name:    { label: 'Full Name',       placeholder: 'Jane Doe' },
       email:   { label: 'Email Address',   placeholder: 'jane@brand.com' },
       company: { label: 'Company Name',    placeholder: 'Brand Co.' },
-      details: { label: 'Project Details', placeholder: 'Tell us what you want to grow — current channels, goals, anything we should know.' },
+      details: { label: 'Project Details', placeholder: 'Tell us what you want to grow: current channels, goals, anything we should know.' },
     },
   },
   info: {
@@ -238,7 +238,7 @@ export const COMPLETE_CTA = {
 };
 
 
-// ── §8 · FOOTER — multi-column ──────────────────────────────────
+// ── §8 · FOOTER - multi-column ──────────────────────────────────
 export const FOOTER = {
   brand:       'Chrono8 Media',
   description: 'Strategic content, high-performing creative, and social media systems for brands ready to grow.',

@@ -1,5 +1,5 @@
 /**
- * Interaction layer — char-swap CTAs, magnetic buttons, custom cursor.
+ * Interaction layer - char-swap CTAs, magnetic buttons, custom cursor.
  * All gated on `prefers-reduced-motion` and pointer type.
  * Ported from prototype Chrono8 Media.html lines 1554-1745.
  */
@@ -85,7 +85,7 @@ function initMagneticButtons() {
   });
 }
 
-/* ── Custom cursor — dot follower with mix-blend-mode difference.
+/* ── Custom cursor - dot follower with mix-blend-mode difference.
    Grows + turns orange over interactive elements. */
 function initCursor() {
   const el = document.getElementById('cursor');

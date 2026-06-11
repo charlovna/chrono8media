@@ -14,50 +14,65 @@ const subHTML = renderKeywords(HERO.sub);
 const { line1, line2Pre, italic, line2Post } = HERO.headline;
 ---
 <!--
-  §1 HERO. Orange background. Prototype typography.
+  §1 HERO. Orange background. Prototype layout: flex-column, space-between.
   Five mechanically distinct entrance motions wired in motion/hero.ts:
     1. .hero-brand        letter-spacing expansion (tight to wide) + fade
     2. .line[data-tw="1"] GSAP TextPlugin typewriter, blinking caret
     3. .line[data-tw="2"] GSAP TextPlugin typewriter, caret continues, italic restored on complete
     4. .hero-sub          clip-path mask wipe (left to right curtain reveal)
     5. .hero-cta-wrap     smooth slide-up + scale settle (expo.out)
-  Italic emphasis on line 2 is preserved because motion/hero.ts stashes innerHTML
-  before the typewriter runs and re-instates it on complete.
+  Desktop: headline is full-width (left-aligned), 3D logo floats absolutely to the right.
+  Mobile: headline full-width, 3D logo stacks below headline in flow.
 -->
 <section
   id="hero"
   data-section="hero"
   data-bg="orange"
-  class="hero relative min-h-screen overflow-hidden noise-overlay"
+  class="hero noise-overlay"
 >
   <!-- Ghost logo centered behind the headline (prototype hallmark) -->
   <div class="hero-logo-ghost" aria-hidden="true">
     <Logo style="width: auto; height: min(96vh, 1100px); max-width: none;" opacity={0.08} />
   </div>
 
-  <div class="hero-grid mx-auto max-w-[1280px] px-6 py-24 sm:py-28 md:py-32 md:grid md:grid-cols-[1.1fr_1fr] md:gap-16 md:items-center">
-    <!-- LEFT: brand + headline + sub + CTA -->
-    <div class="hero-text relative z-10 text-center md:text-left">
-      <p class="hero-brand font-body font-medium tracking-[0.18em] text-[12px] uppercase mb-6">
+  <!-- All content inside a max-width shell that fills the full viewport height -->
+  <div class="hero-inner">
+
+    <!-- Top: brand eyebrow -->
+    <div class="hero-top">
+      <p class="hero-brand">
         {HERO.brand}
       </p>
+    </div>
 
-      <h1 class="hero-headline h-display">
-        <!-- SSR renders the final content for SEO / accessibility. JS will stash it,
-             empty the line, then typewrite. Hidden via opacity:0 until JS runs. -->
-        <span class="line" data-tw="1">{line1}</span>
-        <span class="line" data-tw="2">
-          {line2Pre && <Fragment set:html={line2Pre + ' '} />}
-          <em>{italic}</em>{line2Post}
-        </span>
-      </h1>
+    <!-- Mid: headline takes full width; 3D logo is in-flow on mobile, absolute on desktop -->
+    <div class="hero-mid">
+      <div class="hero-headline-wrap">
+        <h1 class="hero-headline h-display">
+          <span class="line" data-tw="1">{line1}</span>
+          <span class="line" data-tw="2">
+            {line2Pre && <Fragment set:html={line2Pre + ' '} />}
+            <em>{italic}</em>{line2Post}
+          </span>
+        </h1>
+      </div>
 
+      <!-- 3D floating logo: stacks below headline on mobile, floats right on desktop -->
+      <div class="hero-logo-wrap">
+        <Logo
+          class="hero-logo-3d select-none pointer-events-auto"
+          style="width: 100%; height: auto; will-change: transform;"
+        />
+      </div>
+    </div>
+
+    <!-- Bottom: sub text left, CTA right -->
+    <div class="hero-bot">
       <p
-        class="hero-sub mt-7 max-w-[44ch] mx-auto md:mx-0"
+        class="hero-sub"
         set:html={subHTML}
       />
-
-      <div class="hero-cta-wrap mt-10 flex justify-center md:justify-start">
+      <div class="hero-cta-wrap">
         <a
           href={HERO.cta.targetId}
           class="hero-cta btn"
@@ -71,27 +86,20 @@ const { line1, line2Pre, italic, line2Post } = HERO.headline;
       </div>
     </div>
 
-    <!-- RIGHT: floating 3D logo -->
-    <div class="hero-logo-wrap relative mt-14 md:mt-0 flex items-center justify-center">
-      <Logo
-        class="hero-logo-3d relative z-10 select-none pointer-events-auto"
-        style="width: clamp(180px, 50vw, 360px); height: auto; will-change: transform;"
-      />
-    </div>
   </div>
 </section>
 
 <style>
-  /* Orange background hero (matches prototype) */
+  /* Orange full-viewport hero */
   .hero {
+    position: relative;
+    min-height: 100svh;
     background: var(--color-c8-orange);
     color: var(--color-c8-white);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    overflow: hidden;
   }
 
-  /* Ghost logo behind headline */
+  /* Ghost logo: absolutely behind everything */
   .hero-logo-ghost {
     position: absolute;
     inset: 0;
@@ -103,16 +111,69 @@ const { line1, line2Pre, italic, line2Post } = HERO.headline;
     opacity: 0; /* motion/hero.ts fades to 0.08 */
   }
 
-  /* Brand eyebrow */
-  .hero-brand {
-    color: color-mix(in oklab, var(--color-c8-white) 90%, transparent);
-    /* Initial state for letter-spacing expansion motion */
-    opacity: 0;
-    letter-spacing: 0.06em;
-    will-change: letter-spacing, opacity;
+  /* Inner shell: flex column, fills full viewport height, gives top/mid/bottom structure */
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100svh;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: clamp(20px, 4vw, 40px) clamp(24px, 5vw, 72px) clamp(40px, 6vw, 72px);
   }
 
-  /* Prototype headline typography */
+  /* Top bar: brand eyebrow */
+  .hero-top {
+    display: flex;
+    align-items: center;
+  }
+
+  .hero-brand {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.06em; /* Initial state: letter-spacing expansion motion */
+    text-transform: uppercase;
+    color: color-mix(in oklab, var(--color-c8-white) 90%, transparent);
+    opacity: 0; /* motion/hero.ts animates to 1 */
+    will-change: letter-spacing, opacity;
+    margin: 0;
+  }
+
+  /* Mid: headline + floating logo.
+     Mobile/tablet: column stack (logo below headline). Desktop 1024px+: logo absolute right. */
+  .hero-mid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px 0;
+    position: relative;
+  }
+
+  @media (min-width: 1024px) {
+    .hero-mid {
+      gap: 0; /* logo leaves flow; gap no longer needed */
+    }
+  }
+
+  /* Headline wrapper: full width on mobile/tablet */
+  .hero-headline-wrap {
+    flex: 1;
+    min-width: 0;
+  }
+
+  @media (min-width: 1024px) {
+    /* Reserve the right portion for the absolute logo so fitLine measures correctly */
+    .hero-headline-wrap {
+      padding-right: clamp(220px, 26vw, 360px);
+    }
+  }
+
+  /* Headline typography - matches prototype font scale */
   .hero-headline {
     font-family: var(--font-display);
     font-weight: 800;
@@ -122,16 +183,18 @@ const { line1, line2Pre, italic, line2Post } = HERO.headline;
     font-stretch: condensed;
     word-spacing: 0.04em;
     --fit-scale: 1;
-    font-size: calc(clamp(1.7rem, 6.5vw, 7rem) * var(--fit-scale));
+    font-size: calc(clamp(2.5rem, 11vw, 9rem) * var(--fit-scale));
     color: var(--color-c8-white);
     margin: 0;
   }
+
   .hero-headline > .line {
     display: block;
     white-space: nowrap;
-    min-height: 0.92em; /* preserves layout while line is empty pre-typewriter */
-    opacity: 0;          /* motion/hero.ts sets to 1 once it has stashed HTML */
+    min-height: 0.92em; /* holds layout while typewriter canvas is empty */
+    opacity: 0;          /* motion/hero.ts reveals once HTML is stashed */
   }
+
   .hero-headline em {
     font-style: italic;
     font-weight: 800;
@@ -150,27 +213,68 @@ const { line1, line2Pre, italic, line2Post } = HERO.headline;
   }
   @keyframes tw-blink { 50% { opacity: 0; } }
 
+  /* 3D logo: centered below headline on mobile/tablet, absolute right on desktop */
+  .hero-logo-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: clamp(160px, 48vw, 260px);
+    margin: 0 auto;
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .hero-logo-wrap {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: clamp(220px, 26vw, 360px);
+      margin: 0;
+    }
+  }
+
+  /* Bottom: sub left, CTA right */
+  .hero-bot {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  @media (min-width: 640px) {
+    .hero-bot {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 32px;
+    }
+  }
+
   /* Sub paragraph */
   .hero-sub {
     font-family: var(--font-body);
     font-size: clamp(15px, 1.4vw, 17px);
     line-height: 1.55;
+    max-width: 44ch;
     color: color-mix(in oklab, var(--color-c8-white) 92%, transparent);
-    /* Initial state for clip-path mask wipe */
-    clip-path: inset(0 100% 0 0);
+    clip-path: inset(0 100% 0 0); /* Initial state for mask wipe animation */
     will-change: clip-path;
+    margin: 0;
   }
+
   .hero-sub .hero-key {
     color: var(--color-c8-black);
     font-weight: 500;
   }
 
-  /* CTA: black pill on orange. Initial state for smooth slide-up. */
+  /* CTA button: black pill. Initial state for slide-up animation. */
   .hero-cta-wrap {
     opacity: 0;
     transform: translateY(40px) scale(0.95);
     will-change: transform, opacity;
+    flex-shrink: 0;
   }
+
   .hero-cta.btn {
     display: inline-flex;
     align-items: center;
@@ -185,6 +289,7 @@ const { line1, line2Pre, italic, line2Post } = HERO.headline;
     border-radius: 999px;
     transition: background 0.2s ease;
     will-change: transform;
+    white-space: nowrap;
   }
   .hero-cta.btn:hover { background: #1a1a1a; }
   .hero-cta.btn:focus-visible {
@@ -201,7 +306,11 @@ const { line1, line2Pre, italic, line2Post } = HERO.headline;
   @media (prefers-reduced-motion: reduce) {
     .hero-brand,
     .hero-headline > .line,
-    .hero-cta-wrap { opacity: 1 !important; letter-spacing: inherit; transform: none; }
+    .hero-cta-wrap {
+      opacity: 1 !important;
+      letter-spacing: inherit;
+      transform: none;
+    }
     .hero-sub { clip-path: none; }
     .hero-logo-ghost { opacity: 0.08; }
     .tw-caret { display: none; }
@@ -216,8 +325,8 @@ const { line1, line2Pre, italic, line2Post } = HERO.headline;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isTouch = matchMedia('(pointer: coarse)').matches;
 
-  // 3D logo float + cursor-tilt
-  const logo = document.querySelector<HTMLImageElement>('.hero-logo-3d');
+  // 3D logo: ambient float + cursor-tilt on desktop
+  const logo = document.querySelector<HTMLElement>('.hero-logo-3d');
   if (logo && !reduced) {
     let t = 0;
     let raf = 0;
@@ -230,16 +339,19 @@ const { line1, line2Pre, italic, line2Post } = HERO.headline;
       raf = requestAnimationFrame(tick);
     }
     tick();
+
     if (!isTouch && logo) {
-      const wrap = logo.parentElement!;
-      wrap.addEventListener('mousemove', (e) => {
-        const r = wrap.getBoundingClientRect();
-        const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
-        const dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
-        cancelAnimationFrame(raf);
-        logo.style.transform = `perspective(800px) rotateX(${-dy * 14}deg) rotateY(${dx * 18}deg) translateZ(20px)`;
-      });
-      wrap.addEventListener('mouseleave', () => { tick(); });
+      const wrap = logo.closest('.hero-logo-wrap') as HTMLElement;
+      if (wrap) {
+        wrap.addEventListener('mousemove', (e) => {
+          const r = wrap.getBoundingClientRect();
+          const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+          const dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+          cancelAnimationFrame(raf);
+          logo.style.transform = `perspective(800px) rotateX(${-dy * 14}deg) rotateY(${dx * 18}deg) translateZ(20px)`;
+        });
+        wrap.addEventListener('mouseleave', () => { tick(); });
+      }
     }
   }
 
