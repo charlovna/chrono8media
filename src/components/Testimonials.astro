@@ -1,137 +1,403 @@
 ---
 import { TESTIMONIALS } from '../data/content';
-const items = TESTIMONIALS.items;
+import testimonialsData from '../../content/testimonials.json';
+
+const { eyebrow, heading } = TESTIMONIALS;
+const items = testimonialsData.items;
+
+// 4 copies keeps the loop gapless on viewports up to ~1920px
+// (4 items x ~276px x 4 = 4416px total; we animate only -25% = one set's worth)
+const loopItems = [...items, ...items, ...items, ...items];
 ---
+
 <section
   id="testimonials"
   data-section="testimonials"
-  class="relative bg-c8-black text-c8-white py-24 sm:py-28 md:py-36"
+  class="relative bg-c8-black text-c8-white py-24 sm:py-28 md:py-36 overflow-hidden"
   aria-label="Brand testimonials"
 >
-  <div class="mx-auto max-w-[1200px] px-6">
-    <header class="max-w-[760px] mb-12 md:mb-16">
+  <div class="mx-auto max-w-[1200px] px-6 mb-12 md:mb-16">
+    <header class="max-w-[760px]">
       <p class="font-body font-medium tracking-[0.18em] text-[12px] uppercase text-c8-orange mb-4">
-        {TESTIMONIALS.eyebrow}
+        {eyebrow}
       </p>
       <h2
         class="section-heading h-display text-c8-white"
         data-fit
       >
-        <span class="line">{TESTIMONIALS.heading.line1}</span>
-        <span class="line">{TESTIMONIALS.heading.line2}</span>
+        <span class="line">{heading.line1}</span>
+        <span class="line">{heading.line2}</span>
       </h2>
     </header>
+  </div>
 
-    <!-- Brand-logo grid: 2 cols on mobile, 4 on md+ -->
-    <div
-      class="brand-grid grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"
-      role="tablist"
-      aria-label="Select a brand to see their testimonial"
-    >
-      {items.map((t, i) => (
-        <button
-          type="button"
-          class="brand-tile card-glow flex items-center justify-center px-4 py-6 md:py-8 cursor-pointer focus:outline-none"
-          style="min-height: 110px;"
-          role="tab"
-          aria-selected={i === 0 ? 'true' : 'false'}
-          aria-controls="testimonial-panel"
-          data-index={i}
-          data-name={t.name}
-          data-title={t.title}
-          data-quote={t.quote}
-          data-brand={t.brandName}
-        >
-          <!-- Brand name as the visible label; real logo SVGs swap in once provided.
-               Text rendering keeps tiles legible even before brand SVGs exist. -->
-          <span class="brand-tile-label font-display font-bold uppercase text-center tracking-tight text-c8-white/85 text-[14px] md:text-[15px] leading-tight">
-            {t.brandName}
-          </span>
-        </button>
-      ))}
+  <!-- Marquee viewport: edge-fade mask, no clip needed for bubble via fixed overlay -->
+  <div
+    class="marquee-viewport relative w-full"
+    aria-label="Scroll through testimonials"
+  >
+    <!-- Left/right gradient fade edges -->
+    <div class="pointer-events-none absolute inset-y-0 left-0 w-24 z-10"
+         style="background: linear-gradient(to right, #0A0A0A, transparent)"></div>
+    <div class="pointer-events-none absolute inset-y-0 right-0 w-24 z-10"
+         style="background: linear-gradient(to left, #0A0A0A, transparent)"></div>
+
+    <div class="marquee-track flex gap-4 w-max" role="list" aria-label="Testimonial cards">
+      {loopItems.map((t, i) => {
+        const realIndex = i % items.length;
+        return (
+          <div
+            class="testimonial-card group relative flex-shrink-0 flex flex-col justify-between cursor-pointer select-none"
+            role="listitem"
+            tabindex="0"
+            data-name={t.name}
+            data-title={t.title}
+            data-quote={t.quote}
+            data-brand={t.brandName}
+            data-real={realIndex}
+            aria-label={`Testimonial from ${t.brandName}: ${t.quote.slice(0, 60)}...`}
+          >
+            <!-- Top: small orange quote mark -->
+            <svg
+              class="quote-icon text-c8-orange mb-3 flex-shrink-0"
+              aria-hidden="true"
+              width="20" height="16"
+              viewBox="0 0 36 28"
+              fill="currentColor"
+            >
+              <path d="M8 0C3.6 0 0 3.6 0 8v8c0 4.4 3.6 8 8 8 0-4.4-3.6-8-8-8h8V0H8zm20 0c-4.4 0-8 3.6-8 8v8c0 4.4 3.6 8 8 8 0-4.4-3.6-8-8-8h8V0h-8z"/>
+            </svg>
+
+            <!-- Brand name -->
+            <p class="font-display font-bold uppercase tracking-tight text-c8-white text-[15px] leading-tight mb-2">
+              {t.brandName}
+            </p>
+
+            <!-- Excerpt (first 52 chars) -->
+            <p class="font-body italic text-c8-white/50 text-[12px] leading-snug line-clamp-2">
+              "{t.quote.length > 52 ? t.quote.slice(0, 52) + '...' : t.quote}"
+            </p>
+
+            <!-- Hover hint: thin orange bottom line -->
+            <div class="card-underline absolute bottom-0 left-4 right-4 h-[1.5px] bg-c8-orange origin-left scale-x-0 transition-transform duration-300"></div>
+          </div>
+        );
+      })}
     </div>
-
-    <!-- Single quote panel that swaps content based on selected tile -->
-    <article
-      id="testimonial-panel"
-      class="card-glow testimonial-panel mt-6 md:mt-8 p-7 md:p-12"
-      aria-live="polite"
-    >
-      <blockquote class="m-0">
-        <svg
-          class="text-c8-orange mb-5 md:mb-6"
-          aria-hidden="true"
-          width="36" height="28" viewBox="0 0 36 28" fill="currentColor"
-        >
-          <path d="M8 0C3.6 0 0 3.6 0 8v8c0 4.4 3.6 8 8 8 0-4.4-3.6-8-8-8h8V0H8zm20 0c-4.4 0-8 3.6-8 8v8c0 4.4 3.6 8 8 8 0-4.4-3.6-8-8-8h8V0h-8z"/>
-        </svg>
-        <p
-          class="testimonial-quote font-body text-c8-white text-[18px] sm:text-[20px] md:text-[24px] leading-snug max-w-[58ch]"
-          data-field="quote"
-        >
-          {items[0].quote}
-        </p>
-        <footer class="mt-6 md:mt-8 flex items-baseline gap-3 flex-wrap">
-          <cite class="testimonial-name font-display font-bold text-c8-orange not-italic text-[16px] md:text-[18px] uppercase tracking-tight" data-field="name">
-            {items[0].name}
-          </cite>
-          <span class="text-c8-white/40">·</span>
-          <span class="testimonial-title font-body text-c8-white/70 text-[13px] md:text-[14px]" data-field="title">
-            {items[0].title}
-          </span>
-        </footer>
-      </blockquote>
-    </article>
   </div>
 </section>
 
+<!-- Fixed bubble overlay - one instance, repositioned via JS -->
+<div
+  id="testimonial-bubble"
+  role="tooltip"
+  aria-live="polite"
+  hidden
+>
+  <!-- Arrow pointer -->
+  <div id="bubble-arrow" class="bubble-arrow"></div>
+
+  <svg
+    class="bubble-q text-c8-orange mb-4"
+    aria-hidden="true"
+    width="28" height="22"
+    viewBox="0 0 36 28"
+    fill="currentColor"
+  >
+    <path d="M8 0C3.6 0 0 3.6 0 8v8c0 4.4 3.6 8 8 8 0-4.4-3.6-8-8-8h8V0H8zm20 0c-4.4 0-8 3.6-8 8v8c0 4.4 3.6 8 8 8 0-4.4-3.6-8-8-8h8V0h-8z"/>
+  </svg>
+
+  <p id="bubble-quote" class="font-body text-c8-white text-[16px] leading-relaxed mb-5"></p>
+
+  <footer class="flex items-baseline gap-2 flex-wrap">
+    <cite id="bubble-name" class="font-display font-bold text-c8-orange not-italic text-[13px] uppercase tracking-tight"></cite>
+    <span class="text-c8-white/30 text-[11px]">·</span>
+    <span id="bubble-title" class="font-body text-c8-white/60 text-[12px]"></span>
+  </footer>
+</div>
+
 <style>
-  .brand-tile {
-    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  /* ── Marquee animation ─────────────────────────────────── */
+  @keyframes c8-marquee-rtl {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-25%); } /* -25% of 4x track = 1 set width */
   }
-  .brand-tile[aria-selected="true"] {
-    border-color: var(--color-c8-orange);
-    transform: translateY(-2px);
+
+  .marquee-track {
+    animation: c8-marquee-rtl 36s linear infinite;
+    will-change: transform;
   }
-  .brand-tile[aria-selected="true"] .brand-tile-label {
-    color: var(--color-c8-orange);
+
+  /* Pause on hover/focus of the viewport */
+  .marquee-viewport:hover .marquee-track,
+  .marquee-viewport:focus-within .marquee-track {
+    animation-play-state: paused;
   }
-  .brand-tile:hover { transform: translateY(-2px); }
-  .brand-tile:focus-visible {
-    outline: 2px solid var(--color-c8-orange);
-    outline-offset: 4px;
-  }
+
+  /* Reduced-motion: static grid fallback */
   @media (prefers-reduced-motion: reduce) {
-    .brand-tile { transition: none; }
-    .brand-tile:hover,
-    .brand-tile[aria-selected="true"] { transform: none; }
+    .marquee-track {
+      animation: none;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: center;
+      padding: 0 24px;
+    }
+  }
+
+  /* ── Card styling ─────────────────────────────────────── */
+  .testimonial-card {
+    width: 240px;
+    padding: 20px 22px 18px;
+    background: var(--color-c8-grain, #1A1A1A);
+    border: 1px solid rgba(255, 90, 31, 0.18);
+    border-radius: 14px;
+    transition:
+      border-color 0.25s ease,
+      transform 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+
+  @media (min-width: 768px) {
+    .testimonial-card { width: 268px; }
+  }
+
+  .testimonial-card:hover,
+  .testimonial-card:focus-visible {
+    border-color: rgba(255, 90, 31, 0.6);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(255, 90, 31, 0.12);
+    outline: none;
+  }
+
+  .testimonial-card:hover .card-underline,
+  .testimonial-card:focus-visible .card-underline {
+    transform: scaleX(1);
+  }
+
+  .testimonial-card:focus-visible {
+    outline: 2px solid var(--color-c8-orange);
+    outline-offset: 3px;
+  }
+
+  /* Prevent card hover on touch (long-press handles it) */
+  @media (hover: none) {
+    .testimonial-card:hover {
+      border-color: rgba(255, 90, 31, 0.18);
+      transform: none;
+      box-shadow: none;
+    }
+    .testimonial-card:hover .card-underline { transform: scaleX(0); }
+  }
+
+  /* ── Bubble ────────────────────────────────────────────── */
+  #testimonial-bubble {
+    position: fixed;
+    z-index: 9999;
+    width: min(92vw, 360px);
+    padding: 24px 28px 22px;
+    background: var(--color-c8-grain, #1A1A1A);
+    border: 1px solid rgba(255, 90, 31, 0.3);
+    border-top: 2px solid var(--color-c8-orange, #FF5A1F);
+    border-radius: 14px;
+    box-shadow:
+      0 24px 64px rgba(0, 0, 0, 0.6),
+      0 4px 16px rgba(255, 90, 31, 0.08);
+    pointer-events: auto;
+
+    /* Entrance state */
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  #testimonial-bubble:not([hidden]) {
+    display: block;
+  }
+
+  #testimonial-bubble.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Arrow caret pointing up toward the card */
+  .bubble-arrow {
+    position: absolute;
+    top: -7px;
+    width: 12px;
+    height: 12px;
+    background: var(--color-c8-grain, #1A1A1A);
+    border-top: 2px solid var(--color-c8-orange, #FF5A1F);
+    border-left: 1px solid rgba(255, 90, 31, 0.3);
+    transform: rotate(45deg);
+    pointer-events: none;
+  }
+
+  /* Touch-active state (long press indicator) */
+  .testimonial-card.touch-active {
+    border-color: rgba(255, 90, 31, 0.6);
+    box-shadow: 0 8px 24px rgba(255, 90, 31, 0.15);
   }
 </style>
 
 <script>
-  const tiles  = document.querySelectorAll<HTMLButtonElement>('.brand-tile');
-  const quote  = document.querySelector<HTMLElement>('[data-field="quote"]');
-  const nameEl = document.querySelector<HTMLElement>('[data-field="name"]');
-  const title  = document.querySelector<HTMLElement>('[data-field="title"]');
+  type TestimonialCard = HTMLDivElement & {
+    dataset: {
+      name: string;
+      title: string;
+      quote: string;
+      brand: string;
+      real: string;
+    };
+  };
 
-  function select(tile: HTMLButtonElement) {
-    tiles.forEach((t) => t.setAttribute('aria-selected', t === tile ? 'true' : 'false'));
-    if (quote)  quote.textContent  = tile.dataset.quote ?? '';
-    if (nameEl) nameEl.textContent = tile.dataset.name  ?? '';
-    if (title)  title.textContent  = tile.dataset.title ?? '';
+  const viewport  = document.querySelector<HTMLDivElement>('.marquee-viewport');
+  const bubble    = document.getElementById('testimonial-bubble')!;
+  const arrow     = document.getElementById('bubble-arrow')!;
+  const bubbleQ   = document.getElementById('bubble-quote')!;
+  const bubbleName  = document.getElementById('bubble-name')!;
+  const bubbleTitle = document.getElementById('bubble-title')!;
+  const cards     = Array.from(
+    document.querySelectorAll<TestimonialCard>('.testimonial-card')
+  );
+
+  const HIDE_DELAY = 180; // ms grace period when moving mouse to bubble
+  let   hideTimer: ReturnType<typeof setTimeout> | null = null;
+  let   longPressTimer: ReturnType<typeof setTimeout> | null = null;
+  const isTouch = window.matchMedia('(hover: none)').matches;
+
+  // ── Bubble position ────────────────────────────────────────────
+  function positionBubble(card: HTMLElement) {
+    const rect = card.getBoundingClientRect();
+    const bw   = bubble.offsetWidth || 360;
+    const vh   = window.innerHeight;
+
+    // Horizontal: center on card, clamped 16px from edges
+    let left = rect.left + rect.width / 2 - bw / 2;
+    left = Math.max(16, Math.min(left, window.innerWidth - bw - 16));
+
+    // Vertical: prefer below card, flip above if not enough room
+    let top = rect.bottom + 14;
+    if (top + 200 > vh) top = rect.top - (bubble.offsetHeight || 180) - 14;
+
+    bubble.style.left = `${left}px`;
+    bubble.style.top  = `${top}px`;
+
+    // Arrow: position horizontally relative to card center
+    const arrowLeft = (rect.left + rect.width / 2) - left - 6;
+    arrow.style.left = `${Math.max(12, Math.min(arrowLeft, bw - 24))}px`;
+
+    // Flip arrow if bubble is above card
+    if (top < rect.top) {
+      arrow.style.top    = 'auto';
+      arrow.style.bottom = '-7px';
+      arrow.style.transform = 'rotate(225deg)';
+    } else {
+      arrow.style.top    = '-7px';
+      arrow.style.bottom = 'auto';
+      arrow.style.transform = 'rotate(45deg)';
+    }
   }
 
-  tiles.forEach((tile) => {
-    tile.addEventListener('click', () => select(tile));
-    tile.addEventListener('keydown', (e) => {
-      const idx = Number(tile.dataset.index);
-      let next: HTMLButtonElement | undefined;
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        next = tiles[(idx + 1) % tiles.length];
-      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        next = tiles[(idx - 1 + tiles.length) % tiles.length];
-      }
-      if (next) { e.preventDefault(); next.focus(); select(next); }
+  // ── Show / hide ───────────────────────────────────────────────
+  function populateBubble(card: TestimonialCard) {
+    bubbleQ.textContent     = card.dataset.quote;
+    bubbleName.textContent  = card.dataset.name;
+    bubbleTitle.textContent = card.dataset.title;
+  }
+
+  function showBubble(card: TestimonialCard) {
+    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+    populateBubble(card);
+    bubble.removeAttribute('hidden');
+    // Force reflow so transition fires from initial state
+    void bubble.offsetHeight;
+    positionBubble(card);
+    bubble.classList.add('visible');
+  }
+
+  function hideBubble() {
+    hideTimer = setTimeout(() => {
+      bubble.classList.remove('visible');
+      bubble.addEventListener('transitionend', () => {
+        bubble.setAttribute('hidden', '');
+      }, { once: true });
+    }, HIDE_DELAY);
+  }
+
+  // ── Desktop: mouse events ─────────────────────────────────────
+  if (!isTouch) {
+    cards.forEach((card) => {
+      card.addEventListener('mouseenter', () => showBubble(card));
+      card.addEventListener('mouseleave', hideBubble);
+      // Keyboard: show on focus, hide on blur
+      card.addEventListener('focus', () => showBubble(card));
+      card.addEventListener('blur', hideBubble);
     });
-  });
+
+    // Keep bubble alive while mousing over it
+    bubble.addEventListener('mouseenter', () => {
+      if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+    });
+    bubble.addEventListener('mouseleave', hideBubble);
+  }
+
+  // ── Mobile: long-press events ─────────────────────────────────
+  if (isTouch) {
+    let activeCard: TestimonialCard | null = null;
+
+    function clearLongPress() {
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    }
+
+    function dismissBubble() {
+      hideBubble();
+      if (activeCard) {
+        activeCard.classList.remove('touch-active');
+        activeCard = null;
+      }
+    }
+
+    cards.forEach((card) => {
+      card.addEventListener('touchstart', () => {
+        clearLongPress();
+        longPressTimer = setTimeout(() => {
+          activeCard = card;
+          card.classList.add('touch-active');
+          showBubble(card);
+          // Auto-dismiss after 5 s
+          setTimeout(dismissBubble, 5000);
+        }, 500);
+      }, { passive: true });
+
+      card.addEventListener('touchend',   clearLongPress, { passive: true });
+      card.addEventListener('touchmove',  clearLongPress, { passive: true });
+      card.addEventListener('touchcancel', clearLongPress, { passive: true });
+    });
+
+    // Tap anywhere outside the bubble to dismiss
+    document.addEventListener('touchstart', (e) => {
+      if (activeCard && !bubble.contains(e.target as Node) && e.target !== activeCard) {
+        dismissBubble();
+      }
+    }, { passive: true });
+  }
+
+  // Reposition on scroll/resize while bubble is visible
+  let repositionFrame: number;
+  function onScrollResize() {
+    if (!bubble.classList.contains('visible')) return;
+    cancelAnimationFrame(repositionFrame);
+    repositionFrame = requestAnimationFrame(() => {
+      // Find the card whose data matches the currently shown bubble
+      const shown = cards.find(
+        (c) => c.dataset.name === bubbleName.textContent
+      );
+      if (shown) positionBubble(shown);
+    });
+  }
+  window.addEventListener('scroll',  onScrollResize, { passive: true });
+  window.addEventListener('resize',  onScrollResize, { passive: true });
 </script>
