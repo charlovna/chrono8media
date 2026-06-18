@@ -6,6 +6,21 @@ All notable changes to the Chrono8 Media frontend build are recorded here.
 
 ## 2026-06-19
 
+### -1. Work Showcase section (bento media grid, TinaCMS-wired)
+
+**Files:** `src/components/Showcase.astro` (new), `src/data/content.ts`, `src/pages/index.astro`, `src/components/SectionNav.astro`, `tina/config.ts`, `content/showcase.json` (new), `public/images/showcase/.gitkeep` (new), `CONTENT-GUIDE.md` (new)
+
+New "Our Work" section placed directly below the testimonial marquee. This pass is layout, formatting, and full CMS wiring only: the team populates both testimonials and showcase media through the TinaCMS dashboard (no code).
+
+- **Layout - editorial bento grid:** `Showcase.astro` renders an editorial bento grid (varied tile spans) to contrast with the horizontal marquee directly above it. Mobile-first: 1 column (375px) -> 2 columns (768px) -> 3 columns with `grid-auto-flow: dense` (1024px+). The per-item `span` field maps to desktop placement: `wide` -> `col-span-2`, `tall` -> `row-span-2`, `normal` -> 1x1, each with a fixed `aspect-ratio` so the grid stays tidy. Black canvas so the uploaded media supplies all the color. Verified across 375/768/1024/1440 via Playwright (temp placeholders, removed before commit).
+- **Mixed media, no editor friction:** the component branches on file extension - `.mp4/.webm/.mov` render as `<video muted loop playsinline preload="none">`, everything else (`jpg/png/webp/avif/gif`) as `<img loading="lazy" decoding="async">`. Editors just upload a file in Tina; no "type" field to pick.
+- **Motion + performance guards:** an IntersectionObserver fade-up reveal stagger (unobserves after firing); a second IO plays videos only while on-screen and pauses them off-screen so off-screen clips never decode (keeps Lighthouse Perf / TBT in range). Both gated on `prefers-reduced-motion: reduce` (reveal off, videos never autoplay). Verified reduced-motion shows all tiles statically with no console errors.
+- **Heading + reveal reuse existing systems:** the `<h2 class="section-heading h-display" data-fit>` auto-receives the scroll typewriter (`initHeadingTypewriter`) and fitLine 2-line sizing already in place; no new motion wiring. Eyebrow "Our Work", heading `WORK THAT` / `SPEAKS FOR ITSELF.`
+- **Robust empty/variable state:** ships with `content/showcase.json` = `{ "items": [] }` and renders a tasteful "work on the way" placeholder until the team adds tiles. The grid holds at any item count or media mix.
+- **TinaCMS:** new `showcase` collection in `tina/config.ts` (singleton, `create/delete` disabled, like testimonials) with fields `media` (image, required), `alt` (string, required), `span` (normal/wide/tall). `media.tina.mediaRoot` widened from `images/brand-logos` to `images` so the media manager can browse/upload across `public/images/**` (low-risk: no logos uploaded yet). `tina-lock.json` regenerated.
+- **SectionNav:** added a "Work" tab between "Brands" and "Process".
+- **`CONTENT-GUIDE.md`:** plain-language handoff doc for the team - step-by-step for adding testimonials and showcase media through `/admin`, supported file types, media tips, and "you cannot break the layout" reassurance.
+
 ### 0. Hero/testimonials UI polish pass
 
 **Files:** `src/components/Hero.astro`, `src/components/Testimonials.astro`, `src/motion/fit.ts`, `src/motion/hero.ts`, `content/testimonials.json`

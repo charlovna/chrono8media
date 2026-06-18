@@ -150,6 +150,17 @@ export const TESTIMONIALS = {
 };
 
 
+// ── §4.5 · SHOWCASE - "Our Work" bento media grid ──────────────
+// Layout/format only lives in Showcase.astro. The team adds the actual
+// tiles (photos, GIFs, short muted videos) through the TinaCMS dashboard;
+// each tile is stored in content/showcase.json. This export is just the
+// section copy (eyebrow + strict 2-line heading per CLAUDE.md).
+export const SHOWCASE = {
+  eyebrow: 'Our Work',
+  heading: { line1: 'WORK THAT', line2: 'SPEAKS FOR ITSELF.' },
+};
+
+
 // ── §5 · PROCESS - Vertical 4-step timeline ─────────────────────
 export const PROCESS = {
   eyebrow: 'How It Works',

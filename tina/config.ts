@@ -18,7 +18,10 @@ export default defineConfig({
 
   media: {
     tina: {
-      mediaRoot:   'images/brand-logos',
+      // Browse/upload across all of public/images (testimonial logos AND the
+      // showcase media subfolder). Editors navigate into images/showcase/ when
+      // adding work tiles, images/testimonials/ for logos.
+      mediaRoot:   'images',
       publicFolder: 'public',
     },
   },
@@ -83,6 +86,55 @@ export default defineConfig({
                 label:       'Brand Logo (optional)',
                 type:        'image',
                 description: 'SVG or PNG. Shown inside the marquee card when provided.',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name:   'showcase',
+        label:  'Work Showcase',
+        path:   'content',
+        match:  { include: 'showcase' },
+        format: 'json',
+        ui: {
+          global: true,
+          // Singleton like testimonials: add/remove tiles inside the file,
+          // never create or delete the file itself from the UI.
+          allowedActions: { create: false, delete: false },
+        },
+        fields: [
+          {
+            name:  'items',
+            label: 'Showcase Tiles',
+            type:  'object',
+            list:  true,
+            ui: {
+              itemProps: (item: Record<string, unknown>) => ({
+                label: (item.alt as string) || 'New Tile',
+              }),
+            },
+            fields: [
+              {
+                name:        'media',
+                label:       'Photo, GIF, or Video file',
+                type:        'image',
+                required:    true,
+                description: 'Upload a photo (JPG/PNG/WEBP), GIF, or short muted video (MP4/WEBM). Videos play automatically and loop.',
+              },
+              {
+                name:        'alt',
+                label:       'Description (for accessibility)',
+                type:        'string',
+                required:    true,
+                description: 'A short plain description of what is shown (e.g. "Instagram reel for RYZE launch"). Read by screen readers.',
+              },
+              {
+                name:        'span',
+                label:       'Tile size',
+                type:        'string',
+                options:     ['normal', 'wide', 'tall'],
+                description: 'How big this tile is on desktop. Normal = square. Wide = double width. Tall = double height. Mix sizes for an interesting layout.',
               },
             ],
           },
