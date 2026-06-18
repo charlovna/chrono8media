@@ -6,6 +6,18 @@ All notable changes to the Chrono8 Media frontend build are recorded here.
 
 ## 2026-06-19
 
+### 0. Hero/testimonials UI polish pass
+
+**Files:** `src/components/Hero.astro`, `src/components/Testimonials.astro`, `src/motion/fit.ts`, `src/motion/hero.ts`, `content/testimonials.json`
+
+- **Hero logo blur:** the source asset `chrono8-logo.png` is only 378x674px - too low-res to render sharply at its previous display size (`clamp(220px, 26vw, 360px)`) on Retina/2x displays. Reduced to `clamp(170px, 19vw, 260px)` on desktop (and proportionally on mobile/tablet) to bring it closer to native resolution. True sharpness still requires a higher-resolution export of the same artwork - flagged as an open item.
+- **Hero headline/logo overlap on load (race condition):** `fitAll()` (the 2-line headline auto-shrink safety net) is triggered by multiple independent async events - `document.fonts.ready`, `window.load`, resize. If one of those fired while the hero typewriter animation was mid-type (partial text in line 1, line 2 still empty), it would measure the short/incomplete text, find no overflow, and lock `--fit-scale` back to `1` (full size). The typewriter then kept typing the rest of the headline at that unscaled size, overlapping the hero logo. Fixed by adding `setFitSuppressed()` to `fit.ts`: the typewriter now suppresses all external `fitAll()` calls for its duration and only allows the authoritative re-measurement once the full final text is back in the DOM (`hero.ts` `onComplete`). Verified via a one-off Playwright screenshot check (mid-animation and settled states), not committed to the repo.
+- **Testimonial card sizing:** cards were too small to read at desktop sizes (240px/268px). Resized to 280px (mobile) -> 340px (tablet, 768px+) -> 400px (desktop, 1024px+), with proportionally larger padding, font sizes, and quote icon at each breakpoint.
+- **Marquee pause/resume bug:** pausing the testimonial marquee on hover/long-press was driven entirely by CSS `:hover`/`:focus-within` on `.marquee-viewport`. The hover tooltip bubble renders as a `position: fixed` overlay outside that viewport in the DOM, so the moment the cursor traveled from a card onto the open bubble, `:hover` went false and the marquee resumed scrolling mid-read. Replaced with a JS-driven `.is-paused` class on `.marquee-track`, toggled directly by the bubble's own show/hide lifecycle (`showBubble`/`hideBubble`) instead of raw `:hover`, so the pause now persists for the entire time the bubble is open regardless of cursor position, across mouse, keyboard focus, and mobile long-press.
+- **Marquee loop copies (4 -> 8):** the loop rendered exactly 4 copies of the testimonials array and animated by a fixed `-25%` (one set's width) per cycle. That math only stays gapless if `items.length x cardWidth` is wide enough to fully cover the viewport at the animation's widest point - which gets tight on ultra-wide monitors (2560px+) once item count drops to 1-2 (as it will during TinaCMS content testing) combined with the larger card sizes above. Bumped to 8 copies (`-12.5%` per cycle) so the loop stays seamless regardless of how many real testimonials TinaCMS ends up serving, from 1 up to ~20+.
+- **Testimonials trimmed to 2 items** in `content/testimonials.json` for TinaCMS testing; the remaining 2 (Josh King Madrid, RYZE Performance) will be replaced with real content once it's entered through the TinaCloud admin.
+- **Queued, not fixed yet:** dedupe testimonial brands so the same brand never appears twice while scrolling - revisit once real TinaCMS content is in.
+
 ### 1. Cloudflare deployment fixed - TinaCMS build chain
 
 **Files:** `package-lock.json`, `tina/tina-lock.json`, `.gitignore`

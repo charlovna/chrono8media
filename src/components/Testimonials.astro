@@ -5,9 +5,12 @@ import testimonialsData from '../../content/testimonials.json';
 const { eyebrow, heading } = TESTIMONIALS;
 const items = testimonialsData.items;
 
-// 4 copies keeps the loop gapless on viewports up to ~1920px
-// (4 items x ~276px x 4 = 4416px total; we animate only -25% = one set's worth)
-const loopItems = [...items, ...items, ...items, ...items];
+// 8 copies (not 4) so the loop stays gapless on ultra-wide monitors even
+// when there are only 1-2 real items - card width x item count alone
+// isn't enough margin once the item count shrinks. Keep this at 8 if/when
+// TinaCMS-managed items.length changes; only raise it if testimonials
+// ever exceed ~20 (more copies = more DOM nodes, no animation cost either way).
+const loopItems = Array(8).fill(items).flat();
 ---
 
 <section
@@ -42,7 +45,7 @@ const loopItems = [...items, ...items, ...items, ...items];
     <div class="pointer-events-none absolute inset-y-0 right-0 w-24 z-10"
          style="background: linear-gradient(to left, #0A0A0A, transparent)"></div>
 
-    <div class="marquee-track flex gap-4 w-max" role="list" aria-label="Testimonial cards">
+    <div class="marquee-track flex gap-4 md:gap-6 lg:gap-8 w-max" role="list" aria-label="Testimonial cards">
       {loopItems.map((t, i) => {
         const realIndex = i % items.length;
         return (
@@ -59,7 +62,7 @@ const loopItems = [...items, ...items, ...items, ...items];
           >
             <!-- Top: small orange quote mark -->
             <svg
-              class="quote-icon text-c8-orange mb-3 flex-shrink-0"
+              class="quote-icon text-c8-orange mb-3 flex-shrink-0 w-5 h-4 md:w-6 md:h-5 lg:w-7 lg:h-6"
               aria-hidden="true"
               width="20" height="16"
               viewBox="0 0 36 28"
@@ -69,12 +72,12 @@ const loopItems = [...items, ...items, ...items, ...items];
             </svg>
 
             <!-- Brand name -->
-            <p class="font-display font-bold uppercase tracking-tight text-c8-white text-[15px] leading-tight mb-2">
+            <p class="font-display font-bold uppercase tracking-tight text-c8-white text-[15px] md:text-[17px] lg:text-[19px] leading-tight mb-2">
               {t.brandName}
             </p>
 
             <!-- Excerpt (first 52 chars) -->
-            <p class="font-body italic text-c8-white/50 text-[12px] leading-snug line-clamp-2">
+            <p class="font-body italic text-c8-white/50 text-[12px] md:text-[13px] lg:text-[15px] leading-snug line-clamp-2">
               "{t.quote.length > 52 ? t.quote.slice(0, 52) + '...' : t.quote}"
             </p>
 
@@ -120,7 +123,7 @@ const loopItems = [...items, ...items, ...items, ...items];
   /* ── Marquee animation ─────────────────────────────────── */
   @keyframes c8-marquee-rtl {
     from { transform: translateX(0); }
-    to   { transform: translateX(-25%); } /* -25% of 4x track = 1 set width */
+    to   { transform: translateX(-12.5%); } /* -12.5% of 8x track = 1 set width */
   }
 
   .marquee-track {
@@ -128,9 +131,11 @@ const loopItems = [...items, ...items, ...items, ...items];
     will-change: transform;
   }
 
-  /* Pause on hover/focus of the viewport */
-  .marquee-viewport:hover .marquee-track,
-  .marquee-viewport:focus-within .marquee-track {
+  /* Pause is driven by JS (tied to bubble open/close), not raw :hover -
+     the bubble is a fixed-position overlay outside .marquee-viewport, so
+     :hover alone loses the pause the moment the cursor travels off the
+     track and onto the bubble, resuming the scroll mid-read. */
+  .marquee-track.is-paused {
     animation-play-state: paused;
   }
 
@@ -147,8 +152,8 @@ const loopItems = [...items, ...items, ...items, ...items];
 
   /* ── Card styling ─────────────────────────────────────── */
   .testimonial-card {
-    width: 240px;
-    padding: 20px 22px 18px;
+    width: 280px;
+    padding: 24px 26px 22px;
     background: var(--color-c8-grain, #1A1A1A);
     border: 1px solid rgba(255, 90, 31, 0.18);
     border-radius: 14px;
@@ -159,7 +164,11 @@ const loopItems = [...items, ...items, ...items, ...items];
   }
 
   @media (min-width: 768px) {
-    .testimonial-card { width: 268px; }
+    .testimonial-card { width: 340px; padding: 28px 30px 26px; }
+  }
+
+  @media (min-width: 1024px) {
+    .testimonial-card { width: 400px; padding: 32px 34px 30px; }
   }
 
   .testimonial-card:hover,
@@ -254,6 +263,7 @@ const loopItems = [...items, ...items, ...items, ...items];
   };
 
   const viewport  = document.querySelector<HTMLDivElement>('.marquee-viewport');
+  const track     = document.querySelector<HTMLElement>('.marquee-track');
   const bubble    = document.getElementById('testimonial-bubble')!;
   const arrow     = document.getElementById('bubble-arrow')!;
   const bubbleQ   = document.getElementById('bubble-quote')!;
@@ -316,6 +326,10 @@ const loopItems = [...items, ...items, ...items, ...items];
     void bubble.offsetHeight;
     positionBubble(card);
     bubble.classList.add('visible');
+    // Pause for the full engagement window, not just while hovering the
+    // track - the bubble itself sits outside .marquee-viewport, so this
+    // must stay paused until the bubble actually closes (see hideBubble).
+    track?.classList.add('is-paused');
   }
 
   function hideBubble() {
@@ -323,6 +337,7 @@ const loopItems = [...items, ...items, ...items, ...items];
       bubble.classList.remove('visible');
       bubble.addEventListener('transitionend', () => {
         bubble.setAttribute('hidden', '');
+        track?.classList.remove('is-paused');
       }, { once: true });
     }, HIDE_DELAY);
   }
