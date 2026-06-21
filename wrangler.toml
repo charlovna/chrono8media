@@ -1,0 +1,23 @@
+name = "chrono8media"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist"
+
+# ----------------------------------------------------------------
+# D1 database binding
+# After creating the DB in the Cloudflare dashboard (or via
+# `npx wrangler d1 create chrono8-leads`), paste the database_id below.
+# ----------------------------------------------------------------
+[[d1_databases]]
+binding = "DB"
+database_name = "chrono8-leads"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+# ----------------------------------------------------------------
+# Environment variables (secrets)
+# Do NOT put values here — add them in the Cloudflare Pages
+# dashboard under Settings > Environment variables (encrypted).
+#   RESEND_API_KEY        - your Resend API key
+#   TURNSTILE_SECRET_KEY  - Cloudflare Turnstile secret key
+#   NOTIFY_TO_EMAIL       - inbox that receives lead notifications
+# ----------------------------------------------------------------

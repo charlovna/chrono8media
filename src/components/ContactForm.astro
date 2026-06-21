@@ -1,0 +1,241 @@
+---
+// PUBLIC_TURNSTILE_SITE_KEY is safe to expose in HTML.
+// Set it as a non-secret env var in your Cloudflare Pages dashboard.
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+---
+
+<form
+  id="contact-form"
+  class="contact-form"
+  method="POST"
+  action="/api/lead"
+  novalidate
+  aria-label="Contact form"
+>
+  <!-- Honeypot: bots fill this, humans won't see it -->
+  <div style="display:none" aria-hidden="true">
+    <label for="hp-website">Website</label>
+    <input type="text" id="hp-website" name="hp_website" tabindex="-1" autocomplete="off">
+  </div>
+
+  <div class="form-row">
+    <label for="cf-name" class="form-label">Name <span aria-hidden="true">*</span></label>
+    <input
+      id="cf-name"
+      name="name"
+      type="text"
+      required
+      maxlength="100"
+      autocomplete="name"
+      class="form-input"
+      placeholder="Your name"
+    >
+  </div>
+
+  <div class="form-row">
+    <label for="cf-email" class="form-label">Email <span aria-hidden="true">*</span></label>
+    <input
+      id="cf-email"
+      name="email"
+      type="email"
+      required
+      maxlength="200"
+      autocomplete="email"
+      class="form-input"
+      placeholder="you@company.com"
+    >
+  </div>
+
+  <div class="form-row">
+    <label for="cf-company" class="form-label">Company</label>
+    <input
+      id="cf-company"
+      name="company"
+      type="text"
+      maxlength="150"
+      autocomplete="organization"
+      class="form-input"
+      placeholder="Optional"
+    >
+  </div>
+
+  <div class="form-row">
+    <label for="cf-message" class="form-label">Message</label>
+    <textarea
+      id="cf-message"
+      name="message"
+      maxlength="2000"
+      rows="4"
+      class="form-input form-textarea"
+      placeholder="Tell us what you're working on"
+    ></textarea>
+  </div>
+
+  <!-- Cloudflare Turnstile widget -->
+  {siteKey
+    ? <div class="cf-turnstile" data-sitekey={siteKey} data-theme="dark"></div>
+    : <p class="form-turnstile-missing">Turnstile site key not configured.</p>
+  }
+
+  <div id="form-error" class="form-error" role="alert" aria-live="polite" hidden></div>
+
+  <button type="submit" class="btn btn-primary form-submit" aria-label="Send message">
+    <span class="btn-text">SEND MESSAGE</span>
+    <span class="btn-arrow" aria-hidden="true">&#8594;</span>
+  </button>
+</form>
+
+<div id="form-success" class="form-success" role="status" hidden>
+  <p>Thanks - we'll be in touch within 48 hours.</p>
+</div>
+
+<!-- Turnstile script loaded only when site key is present -->
+{siteKey && (
+  <script
+    src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+    async
+    defer
+  ></script>
+)}
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const errorBox = document.getElementById('form-error') as HTMLElement | null;
+  const successBox = document.getElementById('form-success') as HTMLElement | null;
+  const submitBtn = form?.querySelector('.form-submit') as HTMLButtonElement | null;
+
+  function showError(msg: string) {
+    if (!errorBox) return;
+    errorBox.textContent = msg;
+    errorBox.hidden = false;
+    errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function clearError() {
+    if (!errorBox) return;
+    errorBox.hidden = true;
+    errorBox.textContent = '';
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError();
+
+    // Honeypot check
+    const hp = (form.querySelector('[name="hp_website"]') as HTMLInputElement)?.value;
+    if (hp) return;
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.setAttribute('aria-busy', 'true');
+    }
+
+    try {
+      const data = new FormData(form);
+      const res = await fetch('/api/lead', {
+        method: 'POST',
+        body: new URLSearchParams(data as unknown as Record<string, string>),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+
+      const json = await res.json() as { ok?: boolean; error?: string };
+
+      if (res.ok && json.ok) {
+        form.hidden = true;
+        if (successBox) successBox.hidden = false;
+      } else {
+        showError(json.error ?? 'Something went wrong - please try again.');
+      }
+    } catch {
+      showError('Network error - please check your connection and try again.');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.removeAttribute('aria-busy');
+      }
+    }
+  });
+</script>
+
+<style>
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-label {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--c8-white);
+    opacity: 0.7;
+  }
+
+  .form-label span {
+    color: var(--c8-orange);
+  }
+
+  .form-input {
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    padding: 14px 16px;
+    color: var(--c8-white);
+    font-family: var(--font-body, sans-serif);
+    font-size: 1rem;
+    line-height: 1.5;
+    transition: border-color 0.2s;
+    min-height: 44px;
+  }
+
+  .form-input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--c8-orange);
+    box-shadow: 0 0 0 2px rgba(255, 90, 31, 0.25);
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .form-error {
+    color: #ff5a5a;
+    font-size: 0.875rem;
+    padding: 12px 16px;
+    border: 1px solid rgba(255, 90, 90, 0.4);
+    border-radius: 2px;
+  }
+
+  .form-success {
+    font-family: var(--font-mono, monospace);
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    color: var(--c8-white);
+    opacity: 0.9;
+    padding: 24px 0;
+  }
+
+  .form-submit {
+    align-self: flex-start;
+    min-width: 200px;
+  }
+
+  .form-turnstile-missing {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+  }
+</style>
