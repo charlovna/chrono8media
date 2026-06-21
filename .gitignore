@@ -27,3 +27,7 @@ Thumbs.db
 
 # Obsidian per-user workspace state (panel layout, last-open file)
 chrono8media/project/chrono8media/.obsidian/workspace.json
+
+.dev.vars*
+!.dev.vars.example
+!.env.example
