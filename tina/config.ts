@@ -1,11 +1,13 @@
 import { defineConfig } from 'tinacms';
 
-// TINA_PUBLIC_CLIENT_ID and TINA_TOKEN are set in Cloudflare Pages
-// environment variables (and locally in .env) after connecting to Tina Cloud.
+const BRANCH    = process.env.GITHUB_BRANCH ?? process.env.HEAD ?? 'main';
+const CLIENT_ID = process.env.TINA_PUBLIC_CLIENT_ID ?? null;
+const TOKEN     = process.env.TINA_TOKEN ?? null;
+
 export default defineConfig({
-  branch: process.env.GITHUB_BRANCH || process.env.HEAD || 'main',
-  clientId: process.env.TINA_PUBLIC_CLIENT_ID ?? null,
-  token: process.env.TINA_TOKEN ?? null,
+  branch:   BRANCH,
+  clientId: CLIENT_ID,
+  token:    TOKEN,
 
   build: {
     outputFolder: 'admin',
@@ -14,96 +16,148 @@ export default defineConfig({
 
   media: {
     tina: {
-      mediaRoot: 'images/cms',
+      mediaRoot:   'images',
       publicFolder: 'public',
     },
   },
 
   schema: {
     collections: [
+      // ── Live collections (deployed, managed via TinaCloud) ──────
       {
-        name: 'caseStudies',
-        label: 'Case Studies',
-        path: 'src/content/case-studies',
-        format: 'md',
+        name:   'testimonials',
+        label:  'Testimonials',
+        path:   'content',
+        match:  { include: 'testimonials' },
+        format: 'json',
+        ui: {
+          global: true,
+          allowedActions: { create: false, delete: false },
+        },
         fields: [
-          { type: 'string', name: 'title', label: 'Title', required: true },
-          { type: 'string', name: 'client', label: 'Client', required: true },
-          { type: 'number', name: 'year', label: 'Year', required: true },
-          { type: 'string', name: 'summary', label: 'One-line Summary', required: true },
           {
-            type: 'object',
-            name: 'metrics',
-            label: 'Metrics',
-            list: true,
+            name:  'items',
+            label: 'Testimonials',
+            type:  'object',
+            list:  true,
+            ui: {
+              itemProps: (item: Record<string, unknown>) => ({
+                label: (item.brandName as string) || 'New Testimonial',
+              }),
+            },
             fields: [
-              { type: 'string', name: 'label', label: 'Label', required: true },
-              { type: 'string', name: 'value', label: 'Value', required: true },
+              {
+                name:        'brandName',
+                label:       'Brand / Client Name',
+                type:        'string',
+                required:    true,
+                description: 'The name shown on the marquee card (e.g. "RYZE Performance").',
+              },
+              {
+                name:        'name',
+                label:       'Person Full Name',
+                type:        'string',
+                required:    true,
+                description: 'Full name of the person giving the quote.',
+              },
+              {
+                name:        'title',
+                label:       'Person Title',
+                type:        'string',
+                required:    true,
+                description: 'Their role or company (e.g. "Founder, RYZE Performance").',
+              },
+              {
+                name:        'quote',
+                label:       'Testimonial Quote',
+                type:        'string',
+                required:    true,
+                ui:          { component: 'textarea' },
+                description: 'The full quote. No quotation marks needed.',
+              },
+              {
+                name:        'brandLogo',
+                label:       'Brand Logo (optional)',
+                type:        'image',
+                description: 'SVG or PNG. Shown inside the marquee card when provided.',
+              },
             ],
           },
-          { type: 'image', name: 'hero_image', label: 'Hero Image', required: true },
-          { type: 'number', name: 'order', label: 'Display Order', required: true },
-          { type: 'rich-text', name: 'body', label: 'Body', isBody: true },
         ],
       },
 
       {
-        name: 'testimonials',
-        label: 'Testimonials',
-        path: 'src/content/testimonials',
+        name:   'showcase',
+        label:  'Work Showcase',
+        path:   'content',
+        match:  { include: 'showcase' },
         format: 'json',
-        fields: [
-          { type: 'string', name: 'quote', label: 'Quote', required: true, ui: { component: 'textarea' } },
-          { type: 'string', name: 'author_name', label: 'Author Name', required: true },
-          { type: 'string', name: 'author_role', label: 'Author Role', required: true },
-          { type: 'string', name: 'author_company', label: 'Author Company', required: true },
-          { type: 'image', name: 'headshot', label: 'Headshot (optional)' },
-          { type: 'number', name: 'order', label: 'Display Order', required: true },
-        ],
-      },
-
-      {
-        name: 'pillars',
-        label: 'Pillars',
-        path: 'src/content/pillars',
-        format: 'md',
+        ui: {
+          global: true,
+          allowedActions: { create: false, delete: false },
+        },
         fields: [
           {
-            type: 'string',
-            name: 'number',
-            label: 'Number',
-            required: true,
-            options: ['01', '02', '03', '04'],
+            name:  'items',
+            label: 'Showcase Tiles',
+            type:  'object',
+            list:  true,
+            ui: {
+              itemProps: (item: Record<string, unknown>) => ({
+                label: (item.alt as string) || 'New Tile',
+              }),
+            },
+            fields: [
+              {
+                name:        'media',
+                label:       'Photo, GIF, or Video file',
+                type:        'image',
+                required:    true,
+                description: 'Upload a photo, GIF, or short muted video. Videos autoplay and loop.',
+              },
+              {
+                name:        'alt',
+                label:       'Description (for accessibility)',
+                type:        'string',
+                required:    true,
+                description: 'Plain description read by screen readers (e.g. "Instagram reel for RYZE launch").',
+              },
+              {
+                name:        'span',
+                label:       'Tile size',
+                type:        'string',
+                options:     ['normal', 'wide', 'tall'],
+                description: 'Normal = square. Wide = double width. Tall = double height.',
+              },
+            ],
           },
-          { type: 'string', name: 'name', label: 'Name', required: true },
-          { type: 'string', name: 'supporting_copy', label: 'Supporting Copy', required: true },
-          { type: 'rich-text', name: 'body', label: 'Body Copy', isBody: true },
         ],
       },
 
+      // ── Planned collections (not yet wired to components) ───────
       {
-        name: 'heroOptions',
-        label: 'Hero Headlines',
-        path: 'src/content/hero-options',
+        name:   'heroOptions',
+        label:  'Hero Headlines',
+        path:   'src/content/hero-options',
         format: 'json',
         fields: [
-          { type: 'string', name: 'headline', label: 'Headline', required: true },
+          { type: 'string',  name: 'headline',   label: 'Headline',    required: true },
           { type: 'boolean', name: 'is_default', label: 'Is Default?' },
         ],
       },
 
       {
-        name: 'siteSettings',
-        label: 'Site Settings',
-        path: 'src/content/site-settings',
+        name:   'siteSettings',
+        label:  'Site Settings',
+        path:   'src/content/site-settings',
         format: 'json',
         ui: { allowedActions: { create: false, delete: false } },
         fields: [
-          { type: 'string', name: 'eyebrow', label: 'Eyebrow (above hero)', required: true },
-          { type: 'string', name: 'ig_handle', label: 'Instagram Handle', required: true },
-          { type: 'string', name: 'ig_behold_feed_id', label: 'Behold.so Feed ID', required: true },
-          { type: 'string', name: 'footer_copy', label: 'Footer Copy', required: true },
-          { type: 'string', name: 'notify_to_email', label: 'Lead Notification Email', required: true },
+          { type: 'string', name: 'eyebrow',            label: 'Eyebrow (above hero)',    required: true },
+          { type: 'string', name: 'ig_handle',          label: 'Instagram Handle',         required: true },
+          { type: 'string', name: 'ig_behold_feed_id',  label: 'Behold.so Feed ID',        required: true },
+          { type: 'string', name: 'footer_copy',        label: 'Footer Copy',               required: true },
+          { type: 'string', name: 'notify_to_email',    label: 'Lead Notification Email',   required: true },
         ],
       },
     ],

@@ -3,11 +3,12 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
-    "dev": "tinacms dev -c \"astro dev\"",
-    "build": "astro build",
+    "dev":     "tinacms dev -c \"astro dev\"",
+    "build":   "tinacms build && astro build",
     "cf:build": "tinacms build && astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check":   "astro check",
+    "astro":   "astro dev"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^13.7.0",

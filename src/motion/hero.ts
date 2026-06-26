@@ -1,6 +1,6 @@
 import gsap from 'gsap';
 import { TextPlugin } from 'gsap/TextPlugin';
-import { fitAll } from './fit';
+import { fitAll, setFitSuppressed } from './fit';
 
 gsap.registerPlugin(TextPlugin);
 
@@ -40,6 +40,12 @@ export function initHero() {
     lineData.forEach(({ line }) => { line.style.opacity = '1'; });
     return;
   }
+
+  // Lock the --fit-scale computed against the SSR'd final text (initFit()
+  // already ran this measurement). Suppress further passes until typing
+  // finishes, otherwise a font-load/resize fitAll() mid-type would measure
+  // partial/empty text and unlock an unscaled, overlap-prone size.
+  setFitSuppressed(true);
 
   // Wipe line content, make lines visible so the caret + typing show up
   lineData.forEach(({ line }) => {
@@ -101,7 +107,9 @@ export function initHero() {
       lineData[1].line.innerHTML = lineData[1].finalHTML;
       // Fade caret out a beat after typing completes
       gsap.delayedCall(0.5, () => caret.remove());
-      // Re-measure now that both lines have final content (font may have loaded)
+      // Re-enable and re-measure now that both lines have final content
+      // (font may have finished loading during the typewriter sequence)
+      setFitSuppressed(false);
       fitAll();
     },
   }, '+=0.18');

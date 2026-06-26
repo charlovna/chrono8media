@@ -1,0 +1,203 @@
+---
+import { SHOWCASE } from '../data/content';
+import showcaseData from '../../content/showcase.json';
+
+const { eyebrow, heading } = SHOWCASE;
+const items = showcaseData.items as Array<{
+  media: string;
+  alt: string;
+  span?: 'normal' | 'wide' | 'tall';
+}>;
+
+// Branch render by file extension so editors never pick a "type" - they just
+// upload a file in Tina and the component decides <img> vs <video>.
+const VIDEO_RE = /\.(mp4|webm|mov)$/i;
+const isVideo = (src: string) => VIDEO_RE.test(src);
+
+// span -> desktop grid placement. Mobile/tablet ignore span (1 then 2 cols).
+const spanClass: Record<string, string> = {
+  normal: '',
+  wide: 'lg:col-span-2',
+  tall: 'lg:row-span-2',
+};
+const aspectClass: Record<string, string> = {
+  normal: 'aspect-[4/3]',
+  wide: 'aspect-[16/9]',
+  tall: 'aspect-[3/4]',
+};
+---
+<!--
+  §4.5 SHOWCASE - "Our Work" bento media grid. Black canvas so the uploaded
+  media supplies all the color. Layout/format only: the team fills the tiles
+  through TinaCMS (content/showcase.json). Robust to any count / mix / size.
+
+  Motion (component-local script):
+    - reveal: IntersectionObserver fade-up stagger on tiles (reduced-motion safe)
+    - video perf: IO plays only on-screen videos, pauses off-screen; never
+      autoplays under prefers-reduced-motion.
+-->
+<section
+  id="showcase"
+  data-section="showcase"
+  class="relative bg-c8-black text-c8-white py-24 sm:py-28 md:py-36 overflow-hidden"
+  aria-label="Our work showcase"
+>
+  <div class="mx-auto max-w-[1200px] px-6">
+    <header class="max-w-[760px] mb-12 md:mb-16">
+      <p class="font-body font-medium tracking-[0.18em] text-[12px] uppercase text-c8-orange mb-4">
+        {eyebrow}
+      </p>
+      <h2 class="section-heading h-display text-c8-white" data-fit>
+        <span class="line">{heading.line1}</span>
+        <span class="line">{heading.line2}</span>
+      </h2>
+    </header>
+
+    {items.length === 0 ? (
+      <!-- Empty state: holds the section gracefully until the team adds media -->
+      <div
+        class="showcase-empty flex items-center justify-center rounded-[18px] border border-dashed border-c8-orange/30 text-center px-6 py-20 md:py-28"
+      >
+        <p class="font-body text-c8-white/55 text-[15px] md:text-[16px] max-w-[40ch]">
+          Our latest work is on the way. Check back soon to see what we have been building.
+        </p>
+      </div>
+    ) : (
+      <ul
+        class="showcase-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 list-none p-0 m-0"
+        role="list"
+      >
+        {items.map((item, i) => {
+          const span = item.span ?? 'normal';
+          const video = isVideo(item.media);
+          return (
+            <li
+              class:list={[
+                'showcase-tile group relative overflow-hidden rounded-[14px]',
+                spanClass[span],
+                aspectClass[span],
+              ]}
+              style={`--reveal-delay:${(i % 6) * 70}ms`}
+            >
+              {video ? (
+                <video
+                  class="showcase-media h-full w-full object-cover"
+                  src={item.media}
+                  muted
+                  loop
+                  playsinline
+                  preload="none"
+                  aria-label={item.alt}
+                  data-showcase-video
+                ></video>
+              ) : (
+                <img
+                  class="showcase-media h-full w-full object-cover"
+                  src={item.media}
+                  alt={item.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    )}
+  </div>
+</section>
+
+<style>
+  /* Tile shell: black with a hairline orange edge that intensifies on hover/focus
+     (mirrors the orange-edge language on testimonial cards - no #CFC2B4 here).
+     Starts in the reveal-on-scroll initial state; .is-visible clears it. */
+  .showcase-tile {
+    background: var(--color-c8-grain, #1A1A1A);
+    border: 1px solid color-mix(in oklab, var(--color-c8-orange) 18%, transparent);
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.5s ease var(--reveal-delay, 0ms),
+      transform 0.5s ease var(--reveal-delay, 0ms),
+      border-color 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+  .showcase-tile.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .showcase-tile:hover,
+  .showcase-tile:focus-within {
+    border-color: color-mix(in oklab, var(--color-c8-orange) 55%, transparent);
+    box-shadow: 0 12px 32px rgba(255, 90, 31, 0.12);
+  }
+
+  /* Media zooms slightly inside the clipped tile on hover (decorative only). */
+  .showcase-media {
+    transition: transform 0.4s cubic-bezier(.2,.6,.2,1);
+  }
+  .showcase-tile:hover .showcase-media,
+  .showcase-tile:focus-within .showcase-media {
+    transform: scale(1.04);
+  }
+
+  /* Touch devices: no hover zoom (mobile-first - no hover-only affordances). */
+  @media (hover: none) {
+    .showcase-tile:hover .showcase-media { transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .showcase-tile {
+      opacity: 1;
+      transform: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .showcase-media { transition: none; }
+  }
+</style>
+
+<script>
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const tiles = Array.from(
+    document.querySelectorAll<HTMLElement>('#showcase .showcase-tile')
+  );
+
+  // ── Reveal stagger ────────────────────────────────────────────
+  if (tiles.length) {
+    if (reduced) {
+      tiles.forEach((t) => t.classList.add('is-visible'));
+    } else {
+      const revealIO = new IntersectionObserver(
+        (entries) => entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-visible');
+            revealIO.unobserve(e.target);
+          }
+        }),
+        { rootMargin: '0px 0px -10% 0px', threshold: 0.12 }
+      );
+      tiles.forEach((t) => revealIO.observe(t));
+    }
+  }
+
+  // ── Video performance guard ───────────────────────────────────
+  // Only on-screen videos decode/play; off-screen ones pause. Never
+  // autoplay under reduced motion (leave paused on the first frame).
+  const videos = Array.from(
+    document.querySelectorAll<HTMLVideoElement>('#showcase [data-showcase-video]')
+  );
+  if (videos.length && !reduced) {
+    const playIO = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        const v = e.target as HTMLVideoElement;
+        if (e.isIntersecting) {
+          v.play().catch(() => { /* autoplay can be blocked; ignore */ });
+        } else {
+          v.pause();
+        }
+      }),
+      { threshold: 0.25 }
+    );
+    videos.forEach((v) => playIO.observe(v));
+  }
+</script>

@@ -40,7 +40,17 @@ function fitOne(h: HTMLElement) {
   }
 }
 
+// While true, fitAll() is a no-op. Set during the hero typewriter so an
+// async font-load/resize pass can't measure mid-type (partial/empty) text,
+// lock in an unscaled --fit-scale, and have the rest of the typed text
+// render oversized into the reserved logo space.
+let suppressed = false;
+export function setFitSuppressed(value: boolean) {
+  suppressed = value;
+}
+
 export function fitAll() {
+  if (suppressed) return;
   document.querySelectorAll<HTMLElement>(TARGET_SELECTOR).forEach(fitOne);
 }
 

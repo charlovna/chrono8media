@@ -4,6 +4,8 @@ node_modules/
 # Build output
 dist/
 .astro/
+tina/__generated__/
+public/admin/
 
 # Environment variables — NEVER commit these
 .env
