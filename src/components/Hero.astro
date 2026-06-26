@@ -11,7 +11,7 @@ function renderKeywords(text: string) {
 }
 const subHTML = renderKeywords(HERO.sub);
 
-const { line1, line2Pre, italic, line2Post } = HERO.headline;
+const { line1, line2 } = HERO.headline;
 ---
 <!--
   §1 HERO. Orange background. Prototype layout: flex-column, space-between.
@@ -50,10 +50,7 @@ const { line1, line2Pre, italic, line2Post } = HERO.headline;
       <div class="hero-headline-wrap">
         <h1 class="hero-headline h-display">
           <span class="line" data-tw="1">{line1}</span>
-          <span class="line" data-tw="2">
-            {line2Pre && <Fragment set:html={line2Pre + ' '} />}
-            <em>{italic}</em>{line2Post}
-          </span>
+          <span class="line" data-tw="2">{line2}</span>
         </h1>
       </div>
 
@@ -193,12 +190,6 @@ const { line1, line2Pre, italic, line2Post } = HERO.headline;
     white-space: nowrap;
     min-height: 0.92em; /* holds layout while typewriter canvas is empty */
     opacity: 0;          /* motion/hero.ts reveals once HTML is stashed */
-  }
-
-  .hero-headline em {
-    font-style: italic;
-    font-weight: 800;
-    color: var(--color-c8-white);
   }
 
   /* Typewriter caret */

@@ -24,10 +24,8 @@ export const META = {
 export const HERO = {
   brand: 'CHRONO8 Media',
   headline: {
-    line1:     'YOUR PARTNER IN',
-    line2Pre:  '',
-    italic:    'DIGITAL MARKETING',
-    line2Post: '.',
+    line1: 'YOUR PARTNER IN',
+    line2: 'DIGITAL MARKETING.',
   },
   sub: 'We help brands grow through {{strategic content}}, {{high-performing creative}}, and {{seamless social media systems}} designed for attention, engagement, and results.',
   cta: {
