@@ -36,14 +36,6 @@
   font-style: normal;
   font-display: swap;
 }
-@font-face {
-  font-family: 'PP Neue Machina';
-  src: url('/fonts/PPNeueMachina-UltraboldItalic.woff2') format('woff2');
-  font-weight: 800;
-  font-style: italic;
-  font-display: swap;
-}
-
 /* PP Neue Montreal (license required) */
 @font-face {
   font-family: 'PP Neue Montreal';
@@ -66,16 +58,9 @@
   font-style: normal;
   font-display: swap;
 }
-@font-face {
-  font-family: 'PP Neue Montreal';
-  src: url('/fonts/PPNeueMontreal-Italic.woff2') format('woff2');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
 /* Base */
 *, *::before, *::after { box-sizing: border-box; }
+em, i { font-style: normal; }
 
 html {
   -webkit-font-smoothing: antialiased;

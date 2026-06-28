@@ -7,7 +7,7 @@
 
 // ── SEO & browser tab ───────────────────────────────────────────
 export const META = {
-  title:       'Chrono8 Media: Your Partner in Digital Marketing',
+  title:       'Chrono8 Media: Social Media & Multimedia Content',
   description: 'We help brands grow through strategic content, high-performing creative, and seamless social media systems designed for attention, engagement, and results.',
   url:         'https://chrono8media.com',
   ogImage:     '/og-image.png',
@@ -16,16 +16,14 @@ export const META = {
 
 // ── §1 · HERO (first screen, left text / right floating logo) ───
 // STRICT 2-line policy per CLAUDE.md: every headline = exactly two `.line` spans.
-//   headline.line1     → first line, plain weight
-//   headline.line2Pre  → plain words before the italic emphasis (may be empty)
-//   headline.italic    → the italic emphasis phrase
-//   headline.line2Post → trailing punctuation/words after italic (e.g. ".")
+//   headline.line1 → first line
+//   headline.line2 → second line
 // sub keeps the {{...}} keyword wrapping for orange highlights.
 export const HERO = {
   brand: 'CHRONO8 Media',
   headline: {
-    line1: 'YOUR PARTNER IN',
-    line2: 'DIGITAL MARKETING.',
+    line1: 'SOCIAL MEDIA &',
+    line2: 'MULTIMEDIA CONTENT.',
   },
   sub: 'We help brands grow through {{strategic content}}, {{high-performing creative}}, and {{seamless social media systems}} designed for attention, engagement, and results.',
   cta: {

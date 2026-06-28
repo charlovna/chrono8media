@@ -1,7 +1,7 @@
 /**
  * Vanilla ScrambleText - same API shape as GSAP ScrambleTextPlugin but with
- * no Club GreenSock dependency. Preserves inner HTML (incl. `<em>`) by
- * stashing innerHTML, scrambling textContent, and restoring on complete.
+ * no Club GreenSock dependency. Stashes innerHTML, scrambles textContent,
+ * and restores markup on complete.
  *
  * If you ever buy Club GreenSock, this can be swapped for the official
  * plugin with no caller-site changes.
@@ -64,7 +64,7 @@ export function scrambleIn(el: HTMLElement | null, opts: ScrambleOpts = {}) {
 
     if (t < 1) raf = requestAnimationFrame(step);
     else {
-      el.innerHTML = originalHTML;   // restore <em> etc.
+      el.innerHTML = originalHTML;
     }
   };
   raf = requestAnimationFrame(step);

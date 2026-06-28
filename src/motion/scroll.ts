@@ -84,8 +84,6 @@ function initPillars(reduced: boolean) {
 /**
  * Every section h2 with .section-heading types in on scroll entry.
  * Each .line is typewritten sequentially via GSAP TextPlugin.
- * The italic <em> on any line is stashed from innerHTML and restored on complete.
- *
  * Skips: hero (has its own load timeline) + pillar cards (use crossfade).
  */
 function initHeadingTypewriter(reduced: boolean) {
@@ -128,7 +126,6 @@ function initHeadingTypewriter(reduced: boolean) {
             ease: 'none',
             text: { value: finalText, delimiter: '' },
             onComplete: () => {
-              // Restore HTML markup (<em> italic emphasis) on complete
               line.innerHTML = finalHTML;
             },
           }, i === 0 ? 0 : '+=0.08');
