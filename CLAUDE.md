@@ -4,7 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Working Persona (Always Active)
 
-You are my senior-level dev planner. I am a junior dev with zero experience — serve as my guide. Ask questions and request clarifications whenever something is ambiguous; do not silently make assumptions about architecture, vendor choice, data shape, or scope. We plan together. The backend must be future-proof. Use the `AskUserQuestion` tool liberally during planning sessions rather than guessing.
+You are my senior-level dev partner. I am a junior dev with zero experience - serve as my guide.
+
+**Verify before claiming.** Always read the actual file before describing what it contains. Never cite CLAUDE.md, memory, or previous conversation as proof that something exists in the codebase - grep or read it first. Memory files are point-in-time snapshots and go stale.
+
+**Decision threshold:** Ask via `AskUserQuestion` when scope, vendor choice, data shape, or user-facing copy is ambiguous. Proceed directly (with a one-sentence intent statement) when the task is clearly within the locked stack and doesn't change architecture, content, or external integrations. Do not ask about implementation details when the approach is obvious.
+
+**Task tracking:** Use `TodoWrite` for any task spanning more than two steps. Mark each step done immediately when complete - do not batch. For architectural decisions that need a plan first, invoke the `Plan` subagent before touching code.
+
+**Security rule:** Never suggest hardcoding credentials. Never log env vars. Always use `.env.local` for local secrets and Cloudflare Pages environment variables for production.
+
+**Push rule:** Never run `git push` directly in conversation. All pushes go through the `/push` slash command, which audits content, logs the push, and reminds about CF Pages verification. The push log lives at `memory/push-log.md`. If the user asks to push without invoking `/push`, remind them to use `/push` instead.
 
 ## Writing Style (Always Active)
 
@@ -20,22 +30,29 @@ This landing page is **Mobile-First** from this point onward. Design and build e
 
 ## What This Repository Is
 
-This is a **design handoff bundle** for Chrono8 Media — a marketing agency landing page. It contains an HTML/CSS/JS prototype and a detailed specification. The goal is to implement this prototype as a production Astro 6 site hosted on Cloudflare Pages. There is no existing Astro project here yet; the prototype (`chrono8media/project/Chrono8 Media.html`) is the source of truth for all visual and interaction decisions.
+This is the **production codebase** for Chrono8 Media - a marketing agency landing page built as an Astro 6 site on Cloudflare Pages. The Astro project is fully scaffolded, deployed, and has a working backend. The HTML prototype (`chrono8media/project/Chrono8 Media.html`) remains the source of truth for all visual and motion decisions that have not yet been implemented.
 
-> The video `C:\Users\My PC\Videos\chrono8_latest.mp4` shows the full finished page in motion — reference it on any device that can play MP4 to see intended scroll behavior and animation timing before implementing.
+**Current build status (as of 2026-06-22):**
+- Frontend: deployed to `chrono8media.pages.dev`. Core sections scaffolded; motion system and several sections still need implementation to match the prototype.
+- Backend: implemented. D1 + Resend + Turnstile + Tina CMS are wired. Awaiting 6 external credentials before the contact form goes live.
+- TinaCMS admin: `/admin` route (requires Tina Cloud credentials in production).
+
+> The video `C:\Users\My PC\Videos\chrono8_latest.mp4` shows the full finished page in motion - reference it to see intended scroll behavior and animation timing before implementing any section.
 
 ---
 
 ## Locked Technology Stack
 
-Do not substitute these — the spec explicitly locks them in:
+Do not substitute these - the spec explicitly locks them in:
 
-- **Framework:** Astro 6 (SSG + islands architecture)
+- **Framework:** Astro 6 (`astro@^6.4.8`)
 - **Styling:** Tailwind CSS v4 with `@theme` design tokens
-- **Motion:** GSAP 3.13 + ScrollTrigger + SplitText + ScrambleTextPlugin
-- **Smooth scroll:** Lenis (disable on touch devices and `prefers-reduced-motion`)
-- **Instagram feed:** Behold.so web component
-- **Fonts:** Self-hosted WOFF2 — PP Neue Machina (display), PP Neue Montreal (body)
+- **Motion:** GSAP 3.13 + ScrollTrigger + SplitText + ScrambleTextPlugin. SplitText is free in GSAP 3.12+ - no Club GSAP license needed.
+- **Smooth scroll:** Lenis `v1.1.0` (locked at v1 - v2 is a breaking rewrite with a different API; do not upgrade without explicit decision)
+- **CMS:** TinaCMS (`tinacms@^3.9.3`) - admin at `/admin`, content in `src/content/`
+- **Backend:** Cloudflare D1 (leads), Resend (email), Cloudflare Turnstile (spam), `src/pages/api/lead.ts`
+- **Instagram feed:** Behold.so web component (user must provide `feed-id`)
+- **Fonts:** Self-hosted WOFF2 - PP Neue Machina (display), PP Neue Montreal (body)
 - **Font fallbacks (dev only):** Space Grotesk (display) + Geist (body); swap to licensed WOFF2 before launch
 - **Image format:** AVIF first, WebP fallback via Astro `<Image>`
 - **Hosting:** Cloudflare Pages + Cloudflare Web Analytics
@@ -81,38 +98,55 @@ Nine sections + footer in this order:
 
 ---
 
-## Recommended Astro File Structure
+## Actual Astro File Structure
+
+The component names in the live codebase diverged from the original spec names. Use these actual filenames - do not create files with the old spec names.
 
 ```
 src/
 ├── layouts/Layout.astro
-├── pages/index.astro
+├── pages/
+│   ├── index.astro
+│   └── api/lead.ts              ← contact form backend
 ├── components/
 │   ├── Hero.astro
-│   ├── TrustMarquee.astro
-│   ├── ProblemFrame.astro
-│   ├── PillarsStack.astro
-│   ├── CaseStudies.astro
-│   ├── Testimonials.astro
-│   ├── Process.astro
-│   ├── Qualifier.astro
-│   ├── FinalCTA.astro
+│   ├── Expertise.astro          ← §3 Problem Frame
+│   ├── PillarsStack.astro       ← §4 Pillars Stack
+│   ├── Showcase.astro           ← §5 Case Studies / Work
+│   ├── Testimonials.astro       ← §6 Testimonials
+│   ├── Process.astro            ← §7 Process
+│   ├── WhyUs.astro              ← §8 Qualifier
+│   ├── CompleteCTA.astro        ← §9 Final CTA
+│   ├── ContactForm.astro        ← lead capture form
+│   ├── SectionNav.astro         ← dot-nav (fixed right edge)
 │   ├── Footer.astro
-│   ├── StickyCTA.astro
 │   ├── MotionRoot.astro
 │   └── Logo.astro
+├── content/                     ← TinaCMS-managed content
+│   ├── pillars/
+│   ├── hero-options/
+│   └── site-settings/
+├── data/content.ts
 ├── styles/global.css
+├── env.d.ts
 └── motion/
     ├── lenis.ts
     ├── scroll.ts
+    ├── interactions.ts
+    ├── scramble.ts
+    ├── fit.ts
     └── hero.ts
 public/
-├── fonts/        ← WOFF2 files (user must provide)
+├── fonts/        ← WOFF2 files (user must provide licensed PP fonts)
 ├── images/       ← case study visuals
 ├── og-image.png
 ├── favicon.svg
 └── robots.txt
 ```
+
+**Still missing from spec (not yet built):**
+- `TrustMarquee.astro` (§2)
+- `StickyCTA.astro` (sticky button after hero exits)
 
 ---
 
@@ -266,14 +300,32 @@ Every added element must earn its space: seam = binding, medallion = brand stamp
 
 ---
 
-## Open Items the User Must Resolve Before Build
+## Open Items Before Launch
 
-1. **Font licenses** — PP Neue Machina + PP Neue Montreal are commercial fonts from Pangram Pangram; user must purchase or confirm coverage (Space Grotesk + Geist are free drop-ins for dev)
-2. **Behold.so account** — Free tier sufficient; user provides `feed-id`
-3. **Real case study content** — Placeholder examples exist in spec; user replaces
-4. **Custom domain** — Not yet set
-5. **OG image** — Not yet created
-6. **Hero headline choice** — 6 locked options; default is "WE MAKE BRANDS *IMPOSSIBLE* TO IGNORE."
+**Credentials (backend will not function without these):**
+1. `RESEND_API_KEY` - from resend.com after creating account
+2. `TURNSTILE_SECRET_KEY` - from CF dashboard > Security > Turnstile (secret key)
+3. `PUBLIC_TURNSTILE_SITE_KEY` - from CF dashboard > Security > Turnstile (site key)
+4. `NOTIFY_TO_EMAIL` - email that receives lead notifications
+5. `TINA_PUBLIC_CLIENT_ID` - from Tina Cloud project settings (after connecting repo)
+6. `TINA_TOKEN` - from Tina Cloud project settings
+
+**D1 database (one-time setup):**
+- Run `npx wrangler d1 create chrono8-leads` and add the ID to `wrangler.toml`
+- Then run `npx wrangler d1 execute chrono8-leads --remote --file=./migrations/001_leads.sql`
+
+**Content and assets:**
+- Font licenses: PP Neue Machina + PP Neue Montreal (Pangram Pangram, commercial). Space Grotesk + Geist are active dev fallbacks.
+- Behold.so `feed-id` - free tier sufficient
+- Real case study content and images
+- Headshot images
+- OG image (1200x630)
+- Custom domain
+
+**Build sections not yet implemented:**
+- TrustMarquee (§2)
+- StickyCTA (sticky button)
+- Remaining motion system per section table
 
 ---
 
