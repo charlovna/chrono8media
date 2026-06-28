@@ -13,9 +13,9 @@ const SOCIAL_SVG: Record<string, string> = {
   aria-label="Contact form"
 >
   <div class="mx-auto max-w-[1200px] px-6">
-    <header class="max-w-[760px] mb-12 md:mb-16 text-center mx-auto">
+    <header class="cta-header max-w-[760px] mb-12 md:mb-16 text-center mx-auto overflow-hidden">
       <h2
-        class="section-heading h-display text-c8-white"
+        class="section-heading h-display text-c8-white cta-heading"
         data-fit
       >
         <span class="line">{COMPLETE_CTA.heading.line1}</span>
@@ -137,6 +137,20 @@ const SOCIAL_SVG: Record<string, string> = {
     </div>
   </div>
 </section>
+
+<style>
+  /*
+   * Tighter clamp so the longest line ("A REAL CONTENT SYSTEM." - 23 chars)
+   * fits inside max-w-[760px] at CSS baseline, before fitLine() JS runs.
+   * Global section-heading uses clamp(1.8rem,7vw,5rem) which allows 80px -
+   * that needs ~960px for this copy. Capping at 3.6rem (~57px) fits ~760px
+   * with the display font. fitLine() still runs as an additional safety net.
+   */
+  .cta-heading {
+    font-size: calc(clamp(1.4rem, 5vw, 3.6rem) * var(--fit-scale));
+    text-align: center;
+  }
+</style>
 
 <script>
   const form = document.querySelector<HTMLFormElement>('.contact-form[data-stub="true"]');

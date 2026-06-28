@@ -234,7 +234,7 @@ export const COMPLETE_CTA = {
   info: {
     heading: "Let's Talk Growth",
     sub:     "Tell us where you are now and where you want to be. We'll come back with a path.",
-    email:        'hello@chrono8media.com',
+    email:        'chrono8media@gmail.com',
     location:     'Remote · Philippines',
     responseTime: 'Reply within 24 hours',
     socials: [
