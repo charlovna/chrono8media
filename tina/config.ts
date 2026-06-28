@@ -134,32 +134,6 @@ export default defineConfig({
         ],
       },
 
-      // ── Planned collections (not yet wired to components) ───────
-      {
-        name:   'heroOptions',
-        label:  'Hero Headlines',
-        path:   'src/content/hero-options',
-        format: 'json',
-        fields: [
-          { type: 'string',  name: 'headline',   label: 'Headline',    required: true },
-          { type: 'boolean', name: 'is_default', label: 'Is Default?' },
-        ],
-      },
-
-      {
-        name:   'siteSettings',
-        label:  'Site Settings',
-        path:   'src/content/site-settings',
-        format: 'json',
-        ui: { allowedActions: { create: false, delete: false } },
-        fields: [
-          { type: 'string', name: 'eyebrow',            label: 'Eyebrow (above hero)',    required: true },
-          { type: 'string', name: 'ig_handle',          label: 'Instagram Handle',         required: true },
-          { type: 'string', name: 'ig_behold_feed_id',  label: 'Behold.so Feed ID',        required: true },
-          { type: 'string', name: 'footer_copy',        label: 'Footer Copy',               required: true },
-          { type: 'string', name: 'notify_to_email',    label: 'Lead Notification Email',   required: true },
-        ],
-      },
     ],
   },
 });
