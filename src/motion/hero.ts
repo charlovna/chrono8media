@@ -10,13 +10,9 @@ gsap.registerPlugin(TextPlugin);
  *
  *   1. .hero-brand        letter-spacing expansion (tight to wide) + opacity
  *   2. .line[data-tw="1"] GSAP TextPlugin typewriter with blinking caret
- *   3. .line[data-tw="2"] GSAP TextPlugin typewriter, caret moves over, italic
- *                         emphasis restored on complete via stashed innerHTML
+ *   3. .line[data-tw="2"] GSAP TextPlugin typewriter, caret continues
  *   4. .hero-sub          clip-path mask wipe (left to right curtain reveal)
  *   5. .hero-cta-wrap     smooth slide-up + scale settle on expo.out
- *
- * Italic <em> emphasis is preserved by stashing innerHTML before typing and
- * re-instating it on complete (TextPlugin would otherwise flatten markup).
  */
 export function initHero() {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -93,7 +89,7 @@ export function initHero() {
     },
   }, '-=0.3');
 
-  // 3. Line 2 typewriter (italic emphasis restored on complete)
+  // 3. Line 2 typewriter
   const dur2 = Math.max(0.55, lineData[1].finalText.length * 0.045);
   tl.to(lineData[1].line, {
     duration: dur2,
@@ -103,7 +99,6 @@ export function initHero() {
       if (!lineData[1].line.contains(caret)) lineData[1].line.appendChild(caret);
     },
     onComplete: () => {
-      // Restore the SSR'd HTML so the <em> italic comes back
       lineData[1].line.innerHTML = lineData[1].finalHTML;
       // Fade caret out a beat after typing completes
       gsap.delayedCall(0.5, () => caret.remove());
