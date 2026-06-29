@@ -1,22 +1,31 @@
 name = "chrono8media"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = "dist"
+
+# NOTE: This project deploys as a Cloudflare WORKER (Static Assets), not Pages.
+# Do NOT add `pages_build_output_dir` here: it makes wrangler classify the build
+# as a Pages project, which then rejects the adapter's auto-generated `ASSETS`
+# binding ("The name 'ASSETS' is reserved in Pages projects") and fails the build.
+# The @astrojs/cloudflare adapter emits the worker + assets config itself.
 
 # ----------------------------------------------------------------
-# D1 database binding
-# After creating the DB in the Cloudflare dashboard (or via
-# `npx wrangler d1 create chrono8-leads`), paste the database_id below.
+# D1 database binding (contact-form leads)
+# Re-enable this block AFTER the database exists and you have a real id:
+#   npx wrangler d1 create chrono8-leads
+# then paste the returned database_id below and uncomment.
+# Left disabled for now: the placeholder id is not a valid UUID and would
+# fail `wrangler deploy`. The contact form is a front-end stub until the
+# backend credentials land, so nothing depends on this binding yet.
 # ----------------------------------------------------------------
-[[d1_databases]]
-binding = "DB"
-database_name = "chrono8-leads"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "chrono8-leads"
+# database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
 
 # ----------------------------------------------------------------
 # Environment variables (secrets)
-# Do NOT put values here — add them in the Cloudflare Pages
-# dashboard under Settings > Environment variables (encrypted).
+# Do NOT put values here: add them in the Cloudflare dashboard under
+# Settings > Environment variables (encrypted).
 #   RESEND_API_KEY        - your Resend API key
 #   TURNSTILE_SECRET_KEY  - Cloudflare Turnstile secret key
 #   NOTIFY_TO_EMAIL       - inbox that receives lead notifications
