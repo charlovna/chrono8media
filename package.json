@@ -5,7 +5,7 @@
   "scripts": {
     "dev":     "tinacms dev -c \"astro dev\"",
     "build":   "tinacms build && astro build",
-    "cf:build": "DEPLOY_TARGET=cloudflare astro build",
+    "cf:build": "rm -rf dist && DEPLOY_TARGET=cloudflare astro build",
     "preview": "astro preview",
     "check":   "astro check",
     "astro":   "astro dev"
