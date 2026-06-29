@@ -72,14 +72,56 @@ change it or delete it, then Save.
 
 ---
 
-## Tips for good media
+## Media reference: formats, sizes, and tile sizes
 
-- **Videos should be short and silent.** They autoplay, loop, and have no sound on
-  the site. Keep them under ~15 seconds and a reasonable file size (under ~10 MB) so
-  the page stays fast.
-- **GIFs** work but are heavy. A short MP4 usually looks better and loads faster.
-- **Photos** look best at a decent resolution (at least ~1200px on the long edge).
-- Always write the **Description** field - it keeps the site accessible.
+### Formats
+
+| Type | Works | Does NOT work |
+|---|---|---|
+| Photos | JPG, PNG, WEBP, AVIF | HEIC, HEIF, RAW |
+| Videos | MP4, WEBM, MOV | Any other format |
+| Animations | GIF | (use MP4 instead - smaller file) |
+
+**iPhone users:** iPhones save photos as HEIC by default, which the site cannot display. Before uploading, open the photo in the Photos app, tap Share, then "Save to Files" - it converts to JPG automatically.
+
+### File size limits
+
+| | Limit |
+|---|---|
+| Photos | Under 1.5 MB |
+| Videos | Under 8 MB |
+| Hard maximum (upload will fail above this) | 10 MB |
+
+To compress a photo before uploading: [squoosh.app](https://squoosh.app) (free, no account needed).
+To compress a video before uploading: [clideo.com/compress-video](https://clideo.com/compress-video) (free, browser-based).
+
+### How videos behave on the site
+
+Videos autoplay silently and loop on repeat. There is no play button and no sound - ever.
+
+- Keep them **5 to 15 seconds** long. Longer loops look the same and just slow the page down.
+- Do not rely on audio. Any voiceover or music is not heard by visitors.
+- Reels exported from Instagram or a phone are often `.mov` files. These work but are large. Converting to `.mp4` first saves significant space.
+
+### Choosing a tile size
+
+Pick the size that matches the natural shape of your media.
+
+| Tile size | Shape | Best for |
+|---|---|---|
+| `normal` | Square | Product graphics, square posts |
+| `wide` | Widescreen (landscape) | Landscape reels, banner graphics |
+| `tall` | Portrait (vertical) | Instagram stories, vertical reels, portrait photos |
+
+If the shape does not match the tile, the site crops the edges and keeps the center. It still looks fine, but choosing the right size avoids cropping.
+
+### Pre-upload checklist
+
+- [ ] File is JPG, PNG, WEBP, MP4, WEBM, MOV, or GIF
+- [ ] File is under 1.5 MB (photos) or under 8 MB (videos)
+- [ ] iPhone photos are converted from HEIC to JPG
+- [ ] File has a clear name before uploading (e.g. `ryze-reel-jan.mp4`, not `IMG_4923.MOV`)
+- [ ] When the media manager opens, navigate into the `showcase` folder before uploading
 
 ---
 
