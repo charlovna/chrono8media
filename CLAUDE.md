@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 You are my senior-level dev partner. I am a junior dev with zero experience - serve as my guide.
 
+**Things to Avoid**
+sycophancy and hallucinations are unacceptable. 
+
+
 **Verify before claiming.** Always read the actual file before describing what it contains. Never cite CLAUDE.md, memory, or previous conversation as proof that something exists in the codebase - grep or read it first. Memory files are point-in-time snapshots and go stale.
 
 **Decision threshold:** Ask via `AskUserQuestion` when scope, vendor choice, data shape, or user-facing copy is ambiguous. Proceed directly (with a one-sentence intent statement) when the task is clearly within the locked stack and doesn't change architecture, content, or external integrations. Do not ask about implementation details when the approach is obvious.
@@ -82,12 +86,11 @@ Five brand colors only. Never introduce grays, soft neutrals, or tinted backgrou
 
 ## Page Architecture
 
-Nine sections + footer in this order:
+Eight sections + footer in this order:
 
 1. **Hero** — Full-viewport orange, headline, eyebrow, logo, CTA button
 2. **Trust Marquee** — Infinite scroll of brand names, black bg, 140px tall
 3. **Problem Frame** — Black bg, centered headline with word-reveal on scroll
-4. **Pillars Stack** — 4 GSAP-pinned scroll cards (Content, Design, Strategy, Consistency) with crossfade
 5. **Work** — 2–3 case studies with GSAP counter-up metrics and parallax imagery
 6. **Testimonials** — 4 cards (2×2 desktop / 1-col mobile), `#CFC2B4` Warm Stone background
 7. **Process** — 3 steps: CSS scroll-snap horizontal track on desktop, vertical stack on mobile
@@ -111,7 +114,6 @@ src/
 ├── components/
 │   ├── Hero.astro
 │   ├── Expertise.astro          ← §3 Problem Frame
-│   ├── PillarsStack.astro       ← §4 Pillars Stack
 │   ├── Showcase.astro           ← §5 Case Studies / Work
 │   ├── Testimonials.astro       ← §6 Testimonials
 │   ├── Process.astro            ← §7 Process
@@ -123,7 +125,6 @@ src/
 │   ├── MotionRoot.astro
 │   └── Logo.astro
 ├── content/                     ← TinaCMS-managed content
-│   ├── pillars/
 │   ├── hero-options/
 │   └── site-settings/
 ├── data/content.ts
@@ -175,7 +176,7 @@ Add `text-wrap: balance` and explicit `word-spacing` on `.h-display` as belt-and
 
 - **Source asset:** `chrono8media/project/chrono8-logo.png` — the user's actual artwork with orange background masked out (52% transparent, anti-aliased edges). Do NOT approximate with an SVG.
 - **Aspect ratio:** 378 × 674 — use `object-fit: contain` on every container so nothing distorts.
-- **Placements:** hero foreground, hero ghost behind headline, four pillar 3D watermarks, final-section ghost, footer, marquee separators.
+- **Placements:** hero foreground, hero ghost behind headline, final-section ghost, footer, marquee separators.
 - **Logo hover:** interlocking-8 rotates 180° on an `.8s` curve.
 
 ---
@@ -191,7 +192,6 @@ Lenis is initialized once in `MotionRoot.astro`. Its scroll event feeds into GSA
 |---|---|
 | Hero load | ScrambleText headline (after logo + eyebrow), char-by-char entrance |
 | §3 Problem Frame | Mask wipe up on scroll enter |
-| §4 Pillars Stack | ScrollTrigger pin + scrub; card crossfade. **DO NOT add ScrollTrigger to pillar names** (reverted — pillar names use 3D logo watermark + crossfade only) |
 | §5 Work | Typewriter on section h2; GSAP counter-up on metrics; parallax `translateY` on images |
 | §6 Testimonials | Chars drop with blur-clear on h2; `ScrollTrigger.batch` fade-up stagger on cards |
 | §7 Process | Horizontal clip wipe on h2; CSS `scroll-snap-type: x mandatory` (desktop only) |
@@ -203,20 +203,6 @@ Lenis is initialized once in `MotionRoot.astro`. Its scroll event feeds into GSA
 `scrambleIn()` helper preserves `<em>` italic emphasis by stashing `innerHTML`, scrambling `textContent`, then restoring markup on complete. Wired on:
 - Hero headline (load, after logo + eyebrow), staggered by `.line`
 - Every section h2 with `.h-display`, triggered at `top 80%`, staggered per `.line`
-- Each pillar name on first activation as you scroll through the pinned stack
-
-### Pillar 3D Logo (watermark behind each card)
-Scroll-scrubbed 3D hooked into the existing ScrollTrigger across the pinned 4-card range:
-- `rotateY`: 0 → 720° (two full spins)
-- `rotateX`: ±12° sine wobble
-- `rotateZ`: ±6° arc roll
-- `scale`: breathes 1 → 1.18
-- `translateZ`: dips up to −80px (mild depth)
-- `blur`: 0 → 0.6px at quarter points for motion-blur feel
-- Opacity: 0.16 on orange cards, 0.22 on black cards
-
-### Pillar label position
-Labels alternate left/right per scroll: 01 left → 02 right → 03 left → 04 right. Reads as a swinging pendulum across the four pillars.
 
 ---
 
@@ -233,7 +219,6 @@ All interactions gated on `prefers-reduced-motion` and disabled on touch where n
 | **Testimonial 3D tilt** | `perspective` rotateX/rotateY tied to cursor position within each card |
 | **Process step controls** | Prev/next arrows + clickable progress dots; live `01 / 03` counter syncs with scroll-snap position |
 | **Cursor dot** | `mix-blend-mode: difference` follower; grows orange over interactive elements; disabled on touch |
-| **Pillar scrub progress** | Thin vertical fill on left edge of each pinned pillar card, tied to ScrollTrigger progress |
 | **Logo hover** | Interlocking-8 rotates 180° on `.8s` curve |
 | **Section tab hover** | ScrambleText fires on every hover |
 
@@ -245,7 +230,7 @@ The original two-column bullet list was considered "symmetric stalemate." The ov
 
 1. **Vertical spine seam** — bone-stone (`#CFC2B4`) gradient line down the column boundary, broken at center for the medallion
 2. **Medallion at center seam** — bone circle with Chrono8 mark inverted to near-black. Entrance: scales in from 0 with −90° rotate, settles on `expo.out`, tied to the diptych slide-in trigger
-3. **Index numbers 01–04 per row** — mono caps; stone on black side, dark on orange side. Carries the §4 pillar numbering language into this section
+3. **Index numbers 01–04 per row**: mono caps; stone on black side, dark on orange side, giving the section a catalog feel
 4. **Dividers** — 18% alpha; orange side uses dark-on-orange hairlines (not white)
 5. **Closing manifesto under each list:**
    - Built: "IF THAT'S YOU — *DM US.*"
