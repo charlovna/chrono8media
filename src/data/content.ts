@@ -74,39 +74,6 @@ export const EXPERTISE = {
 };
 
 
-// ── §3 · PILLARS (unchanged - signature 4-card pinned scroll) ───
-export const PILLARS = [
-  {
-    number:  '01',
-    name:    'CONTENT',
-    tagline: 'That gets attention.',
-    body:    'Stop-the-scroll posts, reels, and short-form built for algorithms, not for awards.',
-    bg:      'orange' as const,
-  },
-  {
-    number:  '02',
-    name:    'DESIGN',
-    tagline: 'That builds authority.',
-    body:    "Visuals that don't just look good. They make your brand impossible to ignore.",
-    bg:      'black' as const,
-  },
-  {
-    number:  '03',
-    name:    'STRATEGY',
-    tagline: 'That drives growth.',
-    body:    'Every post earns its place. Every campaign maps to a number.',
-    bg:      'orange' as const,
-  },
-  {
-    number:  '04',
-    name:    'CONSISTENCY',
-    tagline: 'That delivers results.',
-    body:    'Daily output. Compound returns. The only thing that actually moves the needle.',
-    bg:      'black' as const,
-  },
-];
-
-
 // ── §4 · TESTIMONIALS - Brand-logo grid, click-to-reveal quote ──
 // brandLogo: place file in /public/images/brand-logos/ then reference here.
 // brandName: shown as text fallback if image fails / for screen readers.

@@ -26,15 +26,6 @@ const testimonials = defineCollection({
   }),
 });
 
-const pillars = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/pillars' }),
-  schema: z.object({
-    number: z.enum(['01', '02', '03', '04']),
-    name: z.string(),
-    supporting_copy: z.string(),
-  }),
-});
-
 const heroOptions = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/hero-options' }),
   schema: z.object({
@@ -57,7 +48,6 @@ const siteSettings = defineCollection({
 export const collections = {
   'case-studies': caseStudies,
   testimonials,
-  pillars,
   'hero-options': heroOptions,
   'site-settings': siteSettings,
 };

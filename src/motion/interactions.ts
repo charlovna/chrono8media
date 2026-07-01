@@ -108,7 +108,7 @@ function initCursor() {
   }
   tick();
 
-  const interactive = 'a, button, [role="button"], input, textarea, summary, .brand-tile, .pillar-card';
+  const interactive = 'a, button, [role="button"], input, textarea, summary, .brand-tile';
   document.querySelectorAll(interactive).forEach((el) => {
     el.addEventListener('mouseenter', () => dot.classList.add('is-hot'));
     el.addEventListener('mouseleave', () => dot.classList.remove('is-hot'));
