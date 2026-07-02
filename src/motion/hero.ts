@@ -37,10 +37,31 @@ export function initHero() {
     return;
   }
 
-  // Lock the --fit-scale computed against the SSR'd final text (initFit()
-  // already ran this measurement). Suppress further passes until typing
-  // finishes, otherwise a font-load/resize fitAll() mid-type would measure
-  // partial/empty text and unlock an unscaled, overlap-prone size.
+  // Defer the entrance until the display font is ready (or a short timeout).
+  // The fit scale we lock below must be measured against the SAME glyphs that
+  // render at the end. If we started immediately, initFit() would have measured
+  // with the fallback font, the typewriter would run at that scale, and the
+  // final fitAll() would re-scale the headline - the visible "snap" after
+  // typing. document.fonts.ready settles even on font-load failure, so it will
+  // not hang; the timeout is a safety net for pathological cases.
+  const fontsReady: Promise<unknown> =
+    'fonts' in document ? (document as any).fonts.ready : Promise.resolve();
+  Promise.race([
+    fontsReady,
+    new Promise((resolve) => setTimeout(resolve, 1200)),
+  ]).then(() => runEntrance(lineData));
+}
+
+type LineDatum = { line: HTMLElement; finalHTML: string; finalText: string };
+
+function runEntrance(lineData: LineDatum[]) {
+  // Measure + lock --fit-scale against the final text now that the real font is
+  // loaded (lines still hold their SSR text here, just opacity 0), then freeze
+  // it so an async font-load/resize pass cannot measure mid-type text and
+  // unlock an unscaled, overlap-prone size. Because this scale already matches
+  // the real glyphs, the fitAll() on typing-complete produces the identical
+  // value - so the headline never resizes or snaps.
+  fitAll();
   setFitSuppressed(true);
 
   // Wipe line content, make lines visible so the caret + typing show up
