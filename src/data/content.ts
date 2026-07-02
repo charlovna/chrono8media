@@ -7,8 +7,8 @@
 
 // ── SEO & browser tab ───────────────────────────────────────────
 export const META = {
-  title:       'Chrono8 Media: Social Media & Multimedia Content',
-  description: 'We help brands grow through strategic content, high-performing creative, and seamless social media systems designed for attention, engagement, and results.',
+  title:       'Chrono8 Media: Social Media Marketing & Content Creation',
+  description: 'We help ambitious brands grow through strategic social media marketing, content creation, video production, and brand strategy designed to drive measurable business results.',
   url:         'https://chrono8media.com',
   ogImage:     '/og-image.png',
 };
@@ -22,10 +22,10 @@ export const META = {
 export const HERO = {
   brand: 'CHRONO8 Media',
   headline: {
-    line1: 'SOCIAL MEDIA &',
-    line2: 'MULTIMEDIA CONTENT.',
+    line1: 'SOCIAL MEDIA MARKETING &',
+    line2: 'CONTENT CREATION.',
   },
-  sub: 'We help brands grow through {{strategic content}}, {{high-performing creative}}, and {{seamless social media systems}} designed for attention, engagement, and results.',
+  sub: 'We help ambitious brands grow through {{strategic social media marketing}}, {{content creation}}, {{video production}}, and {{brand strategy}} designed to drive measurable business results.',
   cta: {
     label: 'Get Started',
     targetId: '#complete-cta',
